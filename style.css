@@ -199,6 +199,10 @@ main {
   margin: 8px 0 10px;
 }
 
+.card.experience {
+  padding: 20px 22px;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

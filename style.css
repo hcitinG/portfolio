@@ -406,3 +406,90 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+/* Projects 分類 + 橫向滑動列 */
+
+.projects-section {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.project-category {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 24px;
+}
+
+.project-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.project-category-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.project-slider-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.slider-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.slider-btn:hover {
+  background: #f3f4f6;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.projects-row {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-behavior: smooth;
+}
+
+/* 卡片在橫向列裡面固定一個合理寬度，RWD 時會自動變化 */
+.projects-row .card.project {
+  flex: 0 0 280px;
+}
+
+/* 大螢幕時可稍微放寬一點，讓三張左右剛好一列 */
+@media (min-width: 1024px) {
+  .projects-row .card.project {
+    flex: 0 0 32%;
+  }
+}
+
+/* 手機：一張一張滑動看 */
+@media (max-width: 640px) {
+  .project-category {
+    padding-top: 20px;
+  }
+
+  .project-category-header {
+    flex-direction: row;
+  }
+
+  .projects-row .card.project {
+    flex: 0 0 80%;
+  }
+}

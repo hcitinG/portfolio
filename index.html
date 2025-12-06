@@ -78,38 +78,34 @@
       </div>
     </section>
     
-    <section class="section" id="projects">
-      <div class="container">
-        <div class="section-header">
-          <p class="eyebrow">Selected Work</p>
-          <h2>Projects</h2>
-          <p class="section-lead">A gallery of projects across visual design, UI, and web development. Replace these cards with your own case studies.</p>
+<section class="section" id="projects">
+  <div class="container">
+    <div class="section-header">
+      <p class="eyebrow">Selected Work</p>
+      <h2>Projects</h2>
+      <p class="section-lead">
+        A gallery of projects across visual design, UI, and web development. Replace these cards with your own case studies.
+      </p>
+    </div>
+
+    <div class="projects-section">
+
+      <!-- 類別 1：Visual Design -->
+      <div class="project-category">
+        <div class="project-category-header">
+          <h3>Visual Design</h3>
+          <div class="project-slider-controls">
+            <button class="slider-btn prev" data-target="visual" aria-label="Previous visual projects">‹</button>
+            <button class="slider-btn next" data-target="visual" aria-label="Next visual projects">›</button>
+          </div>
         </div>
-        <div class="projects-grid">
+        <div class="projects-row" data-slider="visual">
           <article class="card project">
             <img src="https://placehold.co/600x400?text=Project+1" alt="Project 1 placeholder">
             <div class="card-body">
               <div class="card-meta">Visual Design</div>
               <h3>Project Alpha</h3>
               <p>Concept brand system with bold typography, balanced color, and adaptable graphic shapes for marketing.</p>
-              <a class="btn link" href="#">View detail</a>
-            </div>
-          </article>
-          <article class="card project">
-            <img src="https://placehold.co/600x400?text=Project+2" alt="Project 2 placeholder">
-            <div class="card-body">
-              <div class="card-meta">UI / UX</div>
-              <h3>Dashboard Beta</h3>
-              <p>Responsive analytics dashboard with modular components, human-readable data, and micro-interactions.</p>
-              <a class="btn link" href="#">View detail</a>
-            </div>
-          </article>
-          <article class="card project">
-            <img src="https://placehold.co/600x400?text=Project+3" alt="Project 3 placeholder">
-            <div class="card-body">
-              <div class="card-meta">Web Design</div>
-              <h3>Landing Gamma</h3>
-              <p>Product launch landing page with persuasive storytelling, feature highlights, and signup prompts.</p>
               <a class="btn link" href="#">View detail</a>
             </div>
           </article>
@@ -122,12 +118,56 @@
               <a class="btn link" href="#">View detail</a>
             </div>
           </article>
+        </div>
+      </div>
+
+      <!-- 類別 2：UI / Product -->
+      <div class="project-category">
+        <div class="project-category-header">
+          <h3>UI & Product</h3>
+          <div class="project-slider-controls">
+            <button class="slider-btn prev" data-target="ui" aria-label="Previous UI projects">‹</button>
+            <button class="slider-btn next" data-target="ui" aria-label="Next UI projects">›</button>
+          </div>
+        </div>
+        <div class="projects-row" data-slider="ui">
+          <article class="card project">
+            <img src="https://placehold.co/600x400?text=Project+2" alt="Project 2 placeholder">
+            <div class="card-body">
+              <div class="card-meta">UI / UX</div>
+              <h3>Dashboard Beta</h3>
+              <p>Responsive analytics dashboard with modular components, human-readable data, and micro-interactions.</p>
+              <a class="btn link" href="#">View detail</a>
+            </div>
+          </article>
           <article class="card project">
             <img src="https://placehold.co/600x400?text=Project+5" alt="Project 5 placeholder">
             <div class="card-body">
               <div class="card-meta">Product Design</div>
               <h3>Mobile Epsilon</h3>
               <p>Mobile app concept featuring intuitive flows, gesture-friendly navigation, and accessible visuals.</p>
+              <a class="btn link" href="#">View detail</a>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- 類別 3：Web & Interactive -->
+      <div class="project-category">
+        <div class="project-category-header">
+          <h3>Web & Interactive</h3>
+          <div class="project-slider-controls">
+            <button class="slider-btn prev" data-target="web" aria-label="Previous web projects">‹</button>
+            <button class="slider-btn next" data-target="web" aria-label="Next web projects">›</button>
+          </div>
+        </div>
+        <div class="projects-row" data-slider="web">
+          <article class="card project">
+            <img src="https://placehold.co/600x400?text=Project+3" alt="Project 3 placeholder">
+            <div class="card-body">
+              <div class="card-meta">Web Design</div>
+              <h3>Landing Gamma</h3>
+              <p>Product launch landing page with persuasive storytelling, feature highlights, and signup prompts.</p>
               <a class="btn link" href="#">View detail</a>
             </div>
           </article>
@@ -142,7 +182,11 @@
           </article>
         </div>
       </div>
-    </section>
+
+    </div>
+  </div>
+</section>
+
 
     <section class="section" id="skills">
       <div class="container two-column">

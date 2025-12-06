@@ -1,228 +1,209 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/index.html b/index.html
-new file mode 100644
-index 0000000000000000000000000000000000000000..f8a97c13f57ff074e9b3d41c9b29a0b9e1d3c1f0
---- /dev/null
-+++ b/index.html
-@@ -0,0 +1,218 @@
-+<!DOCTYPE html>
-+<html lang="en">
-+<head>
-+  <meta charset="UTF-8">
-+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-+  <title>Designer Portfolio</title>
-+  <link rel="preconnect" href="https://fonts.googleapis.com">
-+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-+  <link rel="stylesheet" href="style.css">
-+</head>
-+<body>
-+  <header class="site-header">
-+    <div class="container header-content">
-+      <div class="logo">Creative Name</div>
-+      <nav class="nav" id="mainNav">
-+        <a href="#hero">Hero</a>
-+        <a href="#projects">Projects</a>
-+        <a href="#skills">Skills</a>
-+        <a href="#experience">Experience</a>
-+        <a href="#contact">Contact</a>
-+      </nav>
-+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
-+        <span></span>
-+        <span></span>
-+        <span></span>
-+      </button>
-+    </div>
-+  </header>
-+
-+  <main>
-+    <section class="hero" id="hero">
-+      <div class="container hero-grid">
-+        <div class="hero-text">
-+          <p class="eyebrow">Independent Designer</p>
-+          <h1>Crafting bold visual identities and immersive digital experiences.</h1>
-+          <p class="subtitle">I blend strategy, aesthetics, and technology to help brands communicate with clarity and confidence.</p>
-+          <div class="hero-actions">
-+            <a class="btn primary" href="#projects">View Projects</a>
-+            <a class="btn ghost" href="#contact">Contact</a>
-+          </div>
-+        </div>
-+        <div class="hero-visual">
-+          <img src="https://placehold.co/800x600?text=Hero+Image" alt="Hero placeholder image">
-+        </div>
-+      </div>
-+    </section>
-+
-+    <section class="section" id="projects">
-+      <div class="container">
-+        <div class="section-header">
-+          <p class="eyebrow">Selected Work</p>
-+          <h2>Projects</h2>
-+          <p class="section-lead">A collection of visual design, UI, and web projects built for a variety of industries and audiences.</p>
-+        </div>
-+        <div class="projects-grid">
-+          <article class="card project">
-+            <img src="https://placehold.co/600x400?text=Project+1" alt="Project 1 placeholder">
-+            <div class="card-body">
-+              <div class="card-meta">Visual / Branding</div>
-+              <h3>Brand Redesign A</h3>
-+              <p>Refreshing a lifestyle brand with a cohesive visual system, typography pairing, and packaging accents.</p>
-+              <a class="btn link" href="#">View detail</a>
-+            </div>
-+          </article>
-+          <article class="card project">
-+            <img src="https://placehold.co/600x400?text=Project+2" alt="Project 2 placeholder">
-+            <div class="card-body">
-+              <div class="card-meta">UI Design</div>
-+              <h3>Product Dashboard B</h3>
-+              <p>Designing data-rich dashboards with clarity, micro-interactions, and modular UI components.</p>
-+              <a class="btn link" href="#">View detail</a>
-+            </div>
-+          </article>
-+          <article class="card project">
-+            <img src="https://placehold.co/600x400?text=Project+3" alt="Project 3 placeholder">
-+            <div class="card-body">
-+              <div class="card-meta">Web Design</div>
-+              <h3>Campaign Microsite C</h3>
-+              <p>Building a launch-ready landing page with persuasive storytelling, responsive layouts, and imagery.</p>
-+              <a class="btn link" href="#">View detail</a>
-+            </div>
-+          </article>
-+          <article class="card project">
-+            <img src="https://placehold.co/600x400?text=Project+4" alt="Project 4 placeholder">
-+            <div class="card-body">
-+              <div class="card-meta">Visual / UI Design</div>
-+              <h3>Mobile App Concept D</h3>
-+              <p>Creating a sleek mobile experience with gesture-friendly navigation and a warm, editorial palette.</p>
-+              <a class="btn link" href="#">View detail</a>
-+            </div>
-+          </article>
-+          <article class="card project">
-+            <img src="https://placehold.co/600x400?text=Project+5" alt="Project 5 placeholder">
-+            <div class="card-body">
-+              <div class="card-meta">Web Design</div>
-+              <h3>Portfolio Refresh E</h3>
-+              <p>Showcasing creative work with minimal typography, airy spacing, and purposeful motion cues.</p>
-+              <a class="btn link" href="#">View detail</a>
-+            </div>
-+          </article>
-+          <article class="card project">
-+            <img src="https://placehold.co/600x400?text=Project+6" alt="Project 6 placeholder">
-+            <div class="card-body">
-+              <div class="card-meta">Art Direction</div>
-+              <h3>Editorial Series F</h3>
-+              <p>Developing an editorial set with layout systems, photography direction, and print-ready assets.</p>
-+              <a class="btn link" href="#">View detail</a>
-+            </div>
-+          </article>
-+        </div>
-+      </div>
-+    </section>
-+
-+    <section class="section" id="skills">
-+      <div class="container two-column">
-+        <div>
-+          <p class="eyebrow">Capabilities</p>
-+          <h2>Skills</h2>
-+          <p class="section-lead">Tools and methods I rely on to deliver thoughtful, polished design solutions.</p>
-+        </div>
-+        <div class="skills-grid">
-+          <div class="skill-block">
-+            <h3>Visual Design</h3>
-+            <div class="chips">
-+              <span>Brand Systems</span>
-+              <span>Art Direction</span>
-+              <span>Typography</span>
-+              <span>Color Theory</span>
-+            </div>
-+          </div>
-+          <div class="skill-block">
-+            <h3>UI Design</h3>
-+            <div class="chips">
-+              <span>Design Systems</span>
-+              <span>Prototyping</span>
-+              <span>Micro-interactions</span>
-+              <span>Accessibility</span>
-+            </div>
-+          </div>
-+          <div class="skill-block">
-+            <h3>Web Design</h3>
-+            <div class="chips">
-+              <span>Responsive Layouts</span>
-+              <span>Conversion Copy</span>
-+              <span>SEO Basics</span>
-+              <span>Animation</span>
-+            </div>
-+          </div>
-+          <div class="skill-block">
-+            <h3>Collaboration</h3>
-+            <div class="chips">
-+              <span>Workshops</span>
-+              <span>User Interviews</span>
-+              <span>Agile Teams</span>
-+              <span>Stakeholder Alignment</span>
-+            </div>
-+          </div>
-+        </div>
-+      </div>
-+    </section>
-+
-+    <section class="section" id="experience">
-+      <div class="container two-column">
-+        <div>
-+          <p class="eyebrow">Background</p>
-+          <h2>Experience</h2>
-+          <p class="section-lead">A blend of agency and in-house roles, leading visual strategy from concept to launch.</p>
-+        </div>
-+        <div class="timeline">
-+          <article class="card experience">
-+            <div class="card-meta">2023 — Present</div>
-+            <h3>Lead Visual Designer · North Studio</h3>
-+            <p>Guiding cross-functional teams to deliver brand campaigns, product visuals, and immersive storytelling.</p>
-+          </article>
-+          <article class="card experience">
-+            <div class="card-meta">2021 — 2023</div>
-+            <h3>Senior UI Designer · Lumen Apps</h3>
-+            <p>Owned end-to-end product design for mobile and web, establishing component libraries and design ops.</p>
-+          </article>
-+          <article class="card experience">
-+            <div class="card-meta">2019 — 2021</div>
-+            <h3>Visual Designer · Atelier Collective</h3>
-+            <p>Created visual identities, editorial spreads, and marketing visuals for culture, retail, and tech brands.</p>
-+          </article>
-+          <article class="card experience">
-+            <div class="card-meta">2017 — 2019</div>
-+            <h3>Freelance Designer · Various Clients</h3>
-+            <p>Partnered with startups and agencies to launch websites, event branding, and digital campaigns.</p>
-+          </article>
-+        </div>
-+      </div>
-+    </section>
-+
-+    <section class="section" id="contact">
-+      <div class="container two-column contact-grid">
-+        <div>
-+          <p class="eyebrow">Get in touch</p>
-+          <h2>Contact</h2>
-+          <p class="section-lead">Let’s collaborate on your next visual story. I’m available for freelance projects, long-term partnerships, and consultations.</p>
-+        </div>
-+        <div class="contact-details">
-+          <a class="contact-email" href="mailto:hello@example.com">hello@example.com</a>
-+          <div class="social-links">
-+            <a href="#">Behance</a>
-+            <a href="#">LinkedIn</a>
-+            <a href="#">Instagram</a>
-+          </div>
-+        </div>
-+      </div>
-+    </section>
-+  </main>
-+
-+  <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
-+
-+  <script src="script.js"></script>
-+</body>
-+</html>
- 
-EOF
-)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creative Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-content">
+      <div class="logo">Portfolio Logo</div>
+      <nav class="nav" id="mainNav">
+        <a href="#hero">Home</a>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+        <a href="#experience">Experience</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow">Designer & Front-end Developer</p>
+          <h1>Building thoughtful digital experiences with clarity and craft.</h1>
+          <p class="subtitle">This is a placeholder introduction paragraph that highlights the kind of work and collaborations you might pursue.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#projects">View Projects</a>
+            <a class="btn ghost" href="#contact">Contact</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <img src="https://placehold.co/800x600?text=Hero+Image" alt="Hero placeholder image">
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="projects">
+      <div class="container">
+        <div class="section-header">
+          <p class="eyebrow">Selected Work</p>
+          <h2>Projects</h2>
+          <p class="section-lead">A gallery of projects across visual design, UI, and web development. Replace these cards with your own case studies.</p>
+        </div>
+        <div class="projects-grid">
+          <article class="card project">
+            <img src="https://placehold.co/600x400?text=Project+1" alt="Project 1 placeholder">
+            <div class="card-body">
+              <div class="card-meta">Visual Design</div>
+              <h3>Project Alpha</h3>
+              <p>Concept brand system with bold typography, balanced color, and adaptable graphic shapes for marketing.</p>
+              <a class="btn link" href="#">View detail</a>
+            </div>
+          </article>
+          <article class="card project">
+            <img src="https://placehold.co/600x400?text=Project+2" alt="Project 2 placeholder">
+            <div class="card-body">
+              <div class="card-meta">UI / UX</div>
+              <h3>Dashboard Beta</h3>
+              <p>Responsive analytics dashboard with modular components, human-readable data, and micro-interactions.</p>
+              <a class="btn link" href="#">View detail</a>
+            </div>
+          </article>
+          <article class="card project">
+            <img src="https://placehold.co/600x400?text=Project+3" alt="Project 3 placeholder">
+            <div class="card-body">
+              <div class="card-meta">Web Design</div>
+              <h3>Landing Gamma</h3>
+              <p>Product launch landing page with persuasive storytelling, feature highlights, and signup prompts.</p>
+              <a class="btn link" href="#">View detail</a>
+            </div>
+          </article>
+          <article class="card project">
+            <img src="https://placehold.co/600x400?text=Project+4" alt="Project 4 placeholder">
+            <div class="card-body">
+              <div class="card-meta">Art Direction</div>
+              <h3>Campaign Delta</h3>
+              <p>Visual direction for seasonal campaign with photography guidelines, color accents, and motion cues.</p>
+              <a class="btn link" href="#">View detail</a>
+            </div>
+          </article>
+          <article class="card project">
+            <img src="https://placehold.co/600x400?text=Project+5" alt="Project 5 placeholder">
+            <div class="card-body">
+              <div class="card-meta">Product Design</div>
+              <h3>Mobile Epsilon</h3>
+              <p>Mobile app concept featuring intuitive flows, gesture-friendly navigation, and accessible visuals.</p>
+              <a class="btn link" href="#">View detail</a>
+            </div>
+          </article>
+          <article class="card project">
+            <img src="https://placehold.co/600x400?text=Project+6" alt="Project 6 placeholder">
+            <div class="card-body">
+              <div class="card-meta">Creative Coding</div>
+              <h3>Interactive Zeta</h3>
+              <p>Interactive web experiment showcasing generative patterns, smooth transitions, and playful microcopy.</p>
+              <a class="btn link" href="#">View detail</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="skills">
+      <div class="container two-column">
+        <div>
+          <p class="eyebrow">Capabilities</p>
+          <h2>Skills</h2>
+          <p class="section-lead">Mix and match these skill tags to reflect your real toolkit across design and development.</p>
+        </div>
+        <div class="skills-grid">
+          <div class="skill-block">
+            <h3>Visual Design</h3>
+            <div class="chips">
+              <span>Brand Systems</span>
+              <span>Art Direction</span>
+              <span>Typography</span>
+              <span>Color Theory</span>
+            </div>
+          </div>
+          <div class="skill-block">
+            <h3>UI Design</h3>
+            <div class="chips">
+              <span>Design Systems</span>
+              <span>Prototyping</span>
+              <span>Micro-interactions</span>
+              <span>Accessibility</span>
+            </div>
+          </div>
+          <div class="skill-block">
+            <h3>Web & Code</h3>
+            <div class="chips">
+              <span>Responsive Layouts</span>
+              <span>Semantic HTML</span>
+              <span>CSS Architecture</span>
+              <span>JavaScript</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="experience">
+      <div class="container two-column">
+        <div>
+          <p class="eyebrow">Background</p>
+          <h2>Experience</h2>
+          <p class="section-lead">Short, descriptive blurbs for each role. Swap them for your own career story.</p>
+        </div>
+        <div class="timeline">
+          <article class="card experience">
+            <div class="card-meta">2023 — Present</div>
+            <h3>Lead Designer · North Studio</h3>
+            <p>Overseeing visual direction and collaborating with product teams to launch cohesive brand narratives.</p>
+          </article>
+          <article class="card experience">
+            <div class="card-meta">2021 — 2023</div>
+            <h3>Senior UI/UX · Lumen Apps</h3>
+            <p>Led design sprints, created component libraries, and improved usability across mobile and web platforms.</p>
+          </article>
+          <article class="card experience">
+            <div class="card-meta">2019 — 2021</div>
+            <h3>Visual Designer · Atelier Collective</h3>
+            <p>Designed identity systems, marketing visuals, and editorial layouts for clients in tech and culture.</p>
+          </article>
+          <article class="card experience">
+            <div class="card-meta">2017 — 2019</div>
+            <h3>Freelance Designer · Various Clients</h3>
+            <p>Partnered with startups and agencies to deliver web experiences, event branding, and creative campaigns.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container two-column contact-grid">
+        <div>
+          <p class="eyebrow">Get in touch</p>
+          <h2>Contact</h2>
+          <p class="section-lead">Reach out for collaborations, project inquiries, or simply to say hello. This text can be tailored to your voice.</p>
+        </div>
+        <div class="contact-details">
+          <a class="contact-email" href="mailto:hello@example.com">hello@example.com</a>
+          <div class="social-links">
+            <a href="#">Behance</a>
+            <a href="#">LinkedIn</a>
+            <a href="#">Instagram</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+  <script src="script.js"></script>
+</body>
+</html>

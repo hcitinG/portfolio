@@ -37,3 +37,20 @@ window.addEventListener('scroll', handleBackToTop);
 backToTop.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+
+// Projects slider controls
+document.querySelectorAll('.slider-btn').forEach((button) => {
+  button.addEventListener('click', () => {
+    const target = button.getAttribute('data-target');
+    const row = document.querySelector(`.projects-row[data-slider="${target}"]`);
+    if (!row) return;
+
+    const direction = button.classList.contains('prev') ? -1 : 1;
+    const scrollAmount = row.clientWidth * 0.8;
+
+    row.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth',
+    });
+  });
+});

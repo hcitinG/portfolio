@@ -168,8 +168,8 @@ main {
 .card {
   background: var(--card);
   border-radius: 8px;
-  border: 1px solid #e2e8f0;  /* 新增細邊線 */
-  box-shadow: none;            /* 預設不加陰影 */
+  border: 1px solid #e2e8f0; 
+  box-shadow: none; 
   overflow: hidden;
   transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
 }
@@ -177,7 +177,7 @@ main {
 .card:hover {
   transform: translateY(-2px);
   border-color: #cbd5e1;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06); /* hover 時才有一點陰影 */
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.06); 
 }
 
 .card img {
@@ -201,6 +201,13 @@ main {
 
 .card.experience {
   padding: 20px 22px;
+  transform: none;
+}
+
+.card.experience:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: #e2e8f0;
 }
 
 .btn {

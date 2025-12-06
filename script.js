@@ -45,12 +45,23 @@ document.querySelectorAll('.slider-btn').forEach((button) => {
     const row = document.querySelector(`.projects-row[data-slider="${target}"]`);
     if (!row) return;
 
+    const card = row.querySelector('.card.project');
+    if (!card) return;
+
     const direction = button.classList.contains('prev') ? -1 : 1;
-    const scrollAmount = row.clientWidth * 0.8;
+
+    // 取得 gap（row 上的 gap 值，可能叫 gap 或 columnGap）
+    const styles = window.getComputedStyle(row);
+    const gap =
+      parseInt(styles.columnGap || styles.gap || '0', 10) || 0;
+
+    // 一張卡片寬度 + gap，作為每次滑動距離
+    const cardWidth = card.getBoundingClientRect().width + gap;
 
     row.scrollBy({
-      left: direction * scrollAmount,
+      left: direction * cardWidth,
       behavior: 'smooth',
     });
   });
 });
+;

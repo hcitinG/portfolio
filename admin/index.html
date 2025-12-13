@@ -30,7 +30,6 @@
     </div>
 
     <div class="row g-3">
-      <!-- LEFT：Hero + About + Portfolio Items -->
       <div class="col-12 col-lg-6">
         <div class="card">
           <div class="card-header">Hero</div>
@@ -70,8 +69,23 @@
           </div>
         </div>
 
-        <!-- Portfolio Items moved here -->
         <div class="card mt-3">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span>Filters（作品類別）</span>
+            <button id="btnAddFilter" class="btn btn-sm btn-primary">新增</button>
+          </div>
+          <div class="card-body">
+            <div id="filtersList" class="vstack gap-2"></div>
+            <div class="form-text">
+              key 請用英數小寫（例如 app/web/card），前台會自動轉成 class：<code>filter-app</code>、<code>filter-web</code>。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Admin (List + Editor) -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
           <div class="card-header d-flex align-items-center justify-content-between">
             <span>Portfolio Items</span>
             <button id="btnAddItem" class="btn btn-sm btn-primary">新增作品</button>
@@ -103,7 +117,7 @@
 
               <!-- Right: Editor -->
               <div class="admin-editor">
-                <!-- empty state 提示區塊已刪除 -->
+                <!-- 你要求刪掉的 empty state：已移除 -->
 
                 <div id="itemEditor">
                   <div class="d-flex justify-content-between align-items-start gap-2">
@@ -176,22 +190,6 @@
                 </div><!-- /#itemEditor -->
               </div><!-- /.admin-editor -->
             </div><!-- /.admin-split -->
-          </div>
-        </div>
-      </div>
-
-      <!-- RIGHT：Filters -->
-      <div class="col-12 col-lg-6">
-        <div class="card">
-          <div class="card-header d-flex align-items-center justify-content-between">
-            <span>Filters（作品類別）</span>
-            <button id="btnAddFilter" class="btn btn-sm btn-primary">新增</button>
-          </div>
-          <div class="card-body">
-            <div id="filtersList" class="vstack gap-2"></div>
-            <div class="form-text">
-              key 請用英數小寫（例如 app/web/card），前台會自動轉成 class：<code>filter-app</code>、<code>filter-web</code>。
-            </div>
           </div>
         </div>
       </div>

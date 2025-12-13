@@ -1,10 +1,10 @@
 /**
- * Template Name: Folio
- * Updated: Jul 27 2023 with Bootstrap v5.3.1
- * Template URL: https://bootstrapmade.com/folio-bootstrap-portfolio-template/
- * Author: BootstrapMade.com
- * License: https://bootstrapmade.com/license/
- */
+* Template Name: Folio
+* Updated: Jul 27 2023 with Bootstrap v5.3.1
+* Template URL: https://bootstrapmade.com/folio-bootstrap-portfolio-template/
+* Author: BootstrapMade.com
+* License: https://bootstrapmade.com/license/
+*/
 (function() {
   "use strict";
 
@@ -81,21 +81,14 @@
 
   /**
    * Toggle .header-scrolled class to #header when page is scrolled
-   * + Make header fixed only after scrolling
    */
   let selectHeader = select('#header')
   if (selectHeader) {
     const headerScrolled = () => {
       if (window.scrollY > 100) {
         selectHeader.classList.add('header-scrolled')
-        selectHeader.classList.add('fixed-top')
-
-        // Prevent layout jump when header becomes fixed
-        document.body.style.paddingTop = `${selectHeader.offsetHeight}px`
       } else {
         selectHeader.classList.remove('header-scrolled')
-        selectHeader.classList.remove('fixed-top')
-        document.body.style.paddingTop = '0px'
       }
     }
     window.addEventListener('load', headerScrolled)
@@ -267,4 +260,4 @@
     }
   });
 
-})();
+})()

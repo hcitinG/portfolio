@@ -331,6 +331,8 @@ p {
   max-height: calc(100vh - 80px);
   overflow-y: auto;
 
+  max-width: 420px;
+  margin-left: auto;
   padding: 10px 0;
   border-radius: 10px;
   background-color: #fff;

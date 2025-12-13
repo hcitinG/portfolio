@@ -3,22 +3,18 @@
 }
 
 .card { border-radius: 14px; }
-
 .small-muted { color: #6c757d; font-size: 12px; }
-
 .kv { display: grid; grid-template-columns: 120px 1fr; gap: 8px 12px; }
-
 @media (max-width: 576px) {
   .kv { grid-template-columns: 1fr; }
 }
-
 .item-box { border: 1px solid #dee2e6; border-radius: 12px; padding: 12px; background: #fff; }
 
 /* ===== Admin Split Layout (List + Editor) ===== */
 .admin-split{
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: 40% 60%;
+  gap: 16px;
 }
 
 @media (max-width: 992px){
@@ -34,7 +30,7 @@
 
 .admin-editor{
   position: sticky;
-  top: 12px;
+  top: 72px; /* 避免被 navbar 壓到，可視需求調 56~84 */
   align-self: start;
   border: 1px solid #dee2e6;
   border-radius: 12px;
@@ -43,15 +39,20 @@
   min-height: 520px;
 }
 
+@media (max-width: 992px){
+  .admin-editor{ position: static; min-height: auto; top: auto; }
+}
+
 .item-row{
   border: 1px solid #dee2e6;
   border-radius: 12px;
   background: #fff;
   padding: 10px;
   display: grid;
-  grid-template-columns: 18px 52px 1fr auto;
+  grid-template-columns: 22px 52px 1fr auto;
   gap: 10px;
   align-items: center;
+  transition: background-color .15s, box-shadow .15s, border-color .15s;
 }
 
 .item-row.is-active{
@@ -65,9 +66,17 @@
   color: #6c757d;
   font-weight: 700;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .dragHandle:active{ cursor: grabbing; }
+
+.dragHandle::after{
+  content: " 拖曳排序";
+  font-size: 11px;
+  color: #adb5bd;
+  font-weight: 500;
+}
 
 .listThumb{
   width: 52px;
@@ -114,4 +123,12 @@
 
 .thumbMeta{
   line-height: 1.3;
+}
+
+/* Sortable 狀態（更容易看懂拖曳插入前後） */
+.item-row.sortable-chosen{
+  background: #f8f9fa;
+}
+.item-row.sortable-ghost{
+  opacity: .4;
 }

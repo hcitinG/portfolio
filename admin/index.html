@@ -50,11 +50,11 @@
           <div class="card-body">
             <div class="mb-2">
               <label class="form-label">lead</label>
-              <textarea id="aboutLead" class="form-control" rows="2"></textarea>
+              <div id="aboutLead" class="quill-editor"></div>
             </div>
             <div class="mb-2">
               <label class="form-label">body</label>
-              <textarea id="aboutBody" class="form-control" rows="4"></textarea>
+              <div id="aboutBody" class="quill-editor"></div>
             </div>
             <div class="mb-2">
               <label class="form-label">image（可留空＝自動 placeholder）</label>
@@ -94,8 +94,9 @@
     <input id="fileInput" type="file" accept="application/json" hidden />
   </main>
 
-  <script src="admin.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<script src="admin.js"></script>
 </body>
 </html>
+
 

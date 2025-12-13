@@ -7,19 +7,20 @@
 
   <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
   <link href="admin.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet" />
 </head>
+
 <body class="bg-light">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <span class="navbar-brand">Portfolio Admin</span>
-<div class="d-flex gap-2 align-items-center">
-  <span id="saveState" class="text-white-50 small me-2"></span>
-  <button id="btnSave" class="btn btn-success btn-sm">儲存變更</button>
-  <button id="btnImport" class="btn btn-outline-light btn-sm">匯入 content.json</button>
-  <button id="btnExport" class="btn btn-warning btn-sm">匯出 content.json</button>
-</div>
 
+      <div class="d-flex gap-2 align-items-center">
+        <span id="saveState" class="text-white-50 small me-2"></span>
+        <button id="btnSave" class="btn btn-success btn-sm" disabled>儲存變更</button>
+        <button id="btnImport" class="btn btn-outline-light btn-sm">匯入 content.json</button>
+        <button id="btnExport" class="btn btn-warning btn-sm">匯出 content.json</button>
+      </div>
     </div>
   </nav>
 
@@ -55,10 +56,12 @@
               <label class="form-label">lead</label>
               <div id="aboutLead" class="quill-editor"></div>
             </div>
+
             <div class="mb-2">
               <label class="form-label">body</label>
               <div id="aboutBody" class="quill-editor"></div>
             </div>
+
             <div class="mb-2">
               <label class="form-label">image（可留空＝自動 placeholder）</label>
               <input id="aboutImage" class="form-control" placeholder="assets/img/me.jpg" />
@@ -78,7 +81,6 @@
             </div>
           </div>
         </div>
-
       </div>
 
       <div class="col-12 col-lg-6">
@@ -97,10 +99,8 @@
     <input id="fileInput" type="file" accept="application/json" hidden />
   </main>
 
-<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
-<script src="admin.js"></script>
+  <!-- Quill must be loaded BEFORE admin.js -->
+  <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
-
-
-

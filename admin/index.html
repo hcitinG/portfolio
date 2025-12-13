@@ -26,12 +26,10 @@
 
   <main class="container py-4">
     <div class="alert alert-secondary small">
-      這是純前端後台：修改後請「匯出 content.json」，覆蓋到
-      <code>assets/data/content.json</code>，再推到 GitHub。
+      這是純前端後台：修改後請「匯出 content.json」，覆蓋到 <code>assets/data/content.json</code>，再推到 GitHub。
     </div>
 
     <div class="row g-3">
-      <!-- LEFT -->
       <div class="col-12 col-lg-6">
         <div class="card">
           <div class="card-header">Hero</div>
@@ -58,88 +56,99 @@
               <label class="form-label">lead</label>
               <div id="aboutLead" class="quill-editor"></div>
             </div>
+
             <div class="mb-2">
               <label class="form-label">body</label>
               <div id="aboutBody" class="quill-editor"></div>
             </div>
+
             <div class="mb-2">
-              <label class="form-label">image</label>
-              <input id="aboutImage" class="form-control" />
+              <label class="form-label">image（可留空＝自動 placeholder）</label>
+              <input id="aboutImage" class="form-control" placeholder="assets/img/me.jpg" />
             </div>
           </div>
         </div>
 
         <div class="card mt-3">
-          <div class="card-header d-flex justify-content-between">
-            <span>Filters</span>
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span>Filters（作品類別）</span>
             <button id="btnAddFilter" class="btn btn-sm btn-primary">新增</button>
           </div>
           <div class="card-body">
             <div id="filtersList" class="vstack gap-2"></div>
+            <div class="form-text">
+              key 請用英數小寫（例如 app/web/card），前台會自動轉成 class：<code>filter-app</code>、<code>filter-web</code>。
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT -->
+      <!-- Portfolio Admin (List + Editor) -->
       <div class="col-12 col-lg-6">
         <div class="card">
-          <div class="card-header d-flex justify-content-between">
+          <div class="card-header d-flex align-items-center justify-content-between">
             <span>Portfolio Items</span>
             <button id="btnAddItem" class="btn btn-sm btn-primary">新增作品</button>
           </div>
 
           <div class="card-body">
             <div class="admin-split">
-              <!-- LIST -->
+              <!-- Left: List -->
               <div class="admin-list">
                 <div class="d-flex gap-2 mb-2">
-                  <input id="itemSearch" class="form-control form-control-sm" placeholder="搜尋 title / id" />
-                  <select id="itemFilter" class="form-select form-select-sm" style="max-width:160px">
+                  <input id="itemSearch" class="form-control form-control-sm" placeholder="搜尋 title / id / subtitle" />
+                  <select id="itemFilter" class="form-select form-select-sm" style="max-width: 160px;">
                     <option value="*">全部</option>
                   </select>
                 </div>
+
                 <div id="itemsList" class="vstack gap-2"></div>
+
                 <div class="form-text mt-2">
-                  拖曳左側把手可更動前台顯示順序
+                  拖曳左側把手可排序；順序會影響前台顯示順序。
                 </div>
               </div>
 
-              <!-- EDITOR -->
+              <!-- Right: Editor -->
               <div class="admin-editor">
                 <div id="itemEditorEmpty" class="text-muted small">
-                  請先從左側選擇一個作品
+                  請先從左側點選一個作品進行編輯。
                 </div>
 
                 <div id="itemEditor" class="d-none">
-                  <div class="d-flex justify-content-between align-items-start">
+                  <div class="d-flex justify-content-between align-items-start gap-2">
                     <div>
-                      <div class="small text-muted">編輯中</div>
+                      <div class="small text-muted">正在編輯</div>
                       <div id="editingTitle" class="fw-semibold"></div>
                     </div>
                     <button id="btnDeleteItem" class="btn btn-sm btn-outline-danger">刪除</button>
                   </div>
 
-                  <hr />
+                  <hr class="my-3"/>
 
                   <div class="kv">
                     <div class="small-muted">id</div>
-                    <input id="ed_id" class="form-control form-control-sm" />
+                    <input id="ed_id" class="form-control form-control-sm" placeholder="project-xxx" />
+
                     <div class="small-muted">title</div>
                     <input id="ed_title" class="form-control form-control-sm" />
+
                     <div class="small-muted">subtitle</div>
                     <input id="ed_subtitle" class="form-control form-control-sm" />
 
                     <div class="small-muted">thumb</div>
                     <div>
-                      <input id="ed_thumb" class="form-control form-control-sm" />
+                      <input id="ed_thumb" class="form-control form-control-sm" placeholder="圖片網址" />
                       <div class="thumbRow mt-2">
-                        <img id="pv_thumb" class="thumb" />
-                        <div class="thumbMeta small text-muted">縮圖預覽</div>
+                        <img id="pv_thumb" class="thumb" alt="thumb preview" />
+                        <div class="thumbMeta small text-muted">
+                          貼上網址後顯示縮圖；空值/失敗會顯示 placeholder。
+                        </div>
                       </div>
                     </div>
 
                     <div class="small-muted">projectUrl</div>
-                    <input id="ed_projectUrl" class="form-control form-control-sm" />
+                    <input id="ed_projectUrl" class="form-control form-control-sm" placeholder="https://..." />
 
                     <div class="small-muted">description</div>
                     <textarea id="ed_desc" class="form-control form-control-sm" rows="4"></textarea>
@@ -151,19 +160,32 @@
                   </div>
 
                   <div class="mt-3">
-                    <div class="small-muted mb-1">detail images</div>
-                    <div class="vstack gap-2">
-                      <input id="ed_img0" class="form-control form-control-sm" placeholder="image 1" />
-                      <img id="pv_img0" class="thumb" />
-                      <input id="ed_img1" class="form-control form-control-sm" placeholder="image 2" />
-                      <img id="pv_img1" class="thumb" />
-                      <input id="ed_img2" class="form-control form-control-sm" placeholder="image 3" />
-                      <img id="pv_img2" class="thumb" />
+                    <div class="small-muted mb-1">detail images（最多 3 張）</div>
+                    <div class="row g-2">
+                      <div class="col-12">
+                        <input id="ed_img0" class="form-control form-control-sm" placeholder="圖片網址 #1" />
+                        <div class="thumbRow mt-2">
+                          <img id="pv_img0" class="thumb" alt="image 1 preview" />
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <input id="ed_img1" class="form-control form-control-sm" placeholder="圖片網址 #2" />
+                        <div class="thumbRow mt-2">
+                          <img id="pv_img1" class="thumb" alt="image 2 preview" />
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <input id="ed_img2" class="form-control form-control-sm" placeholder="圖片網址 #3" />
+                        <div class="thumbRow mt-2">
+                          <img id="pv_img2" class="thumb" alt="image 3 preview" />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
+
+                </div><!-- /#itemEditor -->
+              </div><!-- /.admin-editor -->
+            </div><!-- /.admin-split -->
           </div>
         </div>
       </div>
@@ -172,9 +194,13 @@
     <input id="fileInput" type="file" accept="application/json" hidden />
   </main>
 
+  <!-- libs -->
   <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+  <!-- placeholder helpers：若你的檔案不在這個路徑，改成你實際放置位置 -->
   <script src="../assets/js/placeholders.js"></script>
+
   <script src="admin.js"></script>
 </body>
 </html>

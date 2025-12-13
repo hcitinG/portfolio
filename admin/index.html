@@ -29,7 +29,9 @@
       這是純前端後台：修改後請「匯出 content.json」，覆蓋到 <code>assets/data/content.json</code>，再推到 GitHub。
     </div>
 
+    <!-- 上半部：兩欄 -->
     <div class="row g-3">
+      <!-- LEFT -->
       <div class="col-12 col-lg-6">
         <div class="card">
           <div class="card-header">Hero</div>
@@ -68,8 +70,11 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="card mt-3">
+      <!-- RIGHT -->
+      <div class="col-12 col-lg-6">
+        <div class="card">
           <div class="card-header d-flex align-items-center justify-content-between">
             <span>Filters（作品類別）</span>
             <button id="btnAddFilter" class="btn btn-sm btn-primary">新增</button>
@@ -82,9 +87,11 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Portfolio Admin (List + Editor) -->
-      <div class="col-12 col-lg-6">
+    <!-- 下半部：Portfolio Items 全寬 -->
+    <div class="row g-3 mt-1">
+      <div class="col-12">
         <div class="card">
           <div class="card-header d-flex align-items-center justify-content-between">
             <span>Portfolio Items</span>
@@ -117,8 +124,6 @@
 
               <!-- Right: Editor -->
               <div class="admin-editor">
-                <!-- 你要求刪掉的 empty state：已移除 -->
-
                 <div id="itemEditor">
                   <div class="d-flex justify-content-between align-items-start gap-2">
                     <div>

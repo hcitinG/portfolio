@@ -121,6 +121,22 @@
       qsa(".portfolio-item a.portfolio-lightbox", container).forEach((a) => {
         if (!a.getAttribute("href")) a.href = window.makePlaceholderDataUri(a.title || "Preview", 1600, 1200);
       });
+            // === 🔧 修正 Isotope 高度計算時機（避免 Portfolio 被 Journal 吃掉） ===
+      requestAnimationFrame(() => {
+        const iso =
+          window.Isotope &&
+          Isotope.data(container);
+
+        if (iso) {
+          iso.layout();
+        } else {
+          // 保險：若 main.js 尚未初始化 Isotope，稍後再嘗試一次
+          setTimeout(() => {
+            const retryIso = window.Isotope && Isotope.data(container);
+            if (retryIso) retryIso.layout();
+          }, 120);
+        }
+      });
     }
   }
 
@@ -260,4 +276,5 @@
 
   window.addEventListener("DOMContentLoaded", boot);
 })();
+
 

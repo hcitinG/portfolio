@@ -42,7 +42,7 @@
     data: null,
     draft: null,
     dirty: false,
-    selectedId: null
+    selectedId: null,
   };
 
   // Quill
@@ -52,8 +52,10 @@
 
   function setDirty(v) {
     state.dirty = v;
+
     const s = $("saveState");
     if (s) s.textContent = v ? "未儲存" : "已儲存";
+
     const btn = $("btnSave");
     if (btn) btn.disabled = !v;
   }
@@ -363,13 +365,17 @@
     setupSortable();
   }
 
+  /**
+   * 排序語意：把 A 拖到 B 前/後，就是改成你看到的順序
+   * - 搜尋中：禁用拖曳（因為只是一小部分結果）
+   * - 篩選中：允許拖曳，但只改「目前看到的集合」彼此順序，避免影響其他類別
+   */
   function setupSortable() {
     const box = $("itemsList");
     if (!box || !window.Sortable) return;
 
     const hasQuery = ($("itemSearch")?.value || "").trim().length > 0;
-    const fk = $("itemFilter")?.value || "*";
-    const canSort = !hasQuery && fk === "*";
+    const canSort = !hasQuery;
 
     if (sortable) {
       sortable.option("disabled", !canSort);
@@ -380,24 +386,25 @@
       animation: 150,
       handle: ".dragHandle",
       disabled: !canSort,
+      ghostClass: "sortable-ghost",
+      chosenClass: "sortable-chosen",
       onEnd: () => {
-        const ids = Array.from(box.querySelectorAll(".item-row"))
+        const idsInView = Array.from(box.querySelectorAll(".item-row"))
           .map(el => el.getAttribute("data-id"))
           .filter(Boolean);
 
+        // 只重排「目前視圖」這些 id 在全局陣列中的相對順序
+        const viewSet = new Set(idsInView);
         const map = new Map(state.draft.portfolio.items.map(it => [it.id, it]));
-        const next = [];
+        const reorderedSubset = idsInView.map(id => map.get(id)).filter(Boolean);
 
-        ids.forEach(id => {
-          const it = map.get(id);
-          if (it) next.push(it);
+        let ptr = 0;
+        state.draft.portfolio.items = state.draft.portfolio.items.map(it => {
+          if (!viewSet.has(it.id)) return it;
+          const next = reorderedSubset[ptr++];
+          return next || it;
         });
 
-        state.draft.portfolio.items.forEach(it => {
-          if (!ids.includes(it.id)) next.push(it);
-        });
-
-        state.draft.portfolio.items = next;
         markDirty();
         renderItemsUI(false);
       }
@@ -556,17 +563,27 @@
   function renderItemEditor() {
     const it = getSelectedItem();
 
-    const empty = $("itemEditorEmpty");
-    const editor = $("itemEditor");
-
+    // 你要求刪掉 empty state：這裡不再切換 itemEditorEmpty
+    // 沒選到 item：就把右側欄位清空但仍保留畫面
     if (!it) {
-      empty.classList.remove("d-none");
-      editor.classList.add("d-none");
+      $("editingTitle").textContent = "";
+      $("ed_id").value = "";
+      $("ed_title").value = "";
+      $("ed_subtitle").value = "";
+      $("ed_thumb").value = "";
+      $("ed_projectUrl").value = "";
+      $("ed_desc").value = "";
+      $("ed_filters").innerHTML = "";
+      $("ed_img0").value = "";
+      $("ed_img1").value = "";
+      $("ed_img2").value = "";
+      setPreview($("pv_thumb"), "Thumb", 400, 400, "");
+      setPreview($("pv_img0"), "Image 1", 800, 600, "");
+      setPreview($("pv_img1"), "Image 2", 800, 600, "");
+      setPreview($("pv_img2"), "Image 3", 800, 600, "");
+      $("btnDeleteItem").onclick = () => alert("請先選擇一個作品再刪除。");
       return;
     }
-
-    empty.classList.add("d-none");
-    editor.classList.remove("d-none");
 
     it.details = it.details || {};
     it.details.images = it.details.images || ["", "", ""];
@@ -584,6 +601,12 @@
   function renderAll() {
     bindBasicFields();
     renderFilters();
+
+    // 初次載入：如果有 item，就預設選第一個，避免右側空到不知道在幹嘛
+    if (!state.selectedId && state.draft.portfolio.items.length) {
+      state.selectedId = state.draft.portfolio.items[0].id;
+    }
+
     renderItemsUI(false);
   }
 
@@ -665,9 +688,26 @@
     }
   });
 
-  // List controls
-  if ($("itemSearch")) $("itemSearch").addEventListener("input", () => renderItemsUI(false));
-  if ($("itemFilter")) $("itemFilter").addEventListener("change", () => renderItemsUI(false));
+  // Search / Filter controls
+  const searchEl = $("itemSearch");
+  const filterEl = $("itemFilter");
+  const btnSearch = $("btnSearch");
+  const btnClear = $("btnClearSearch");
+
+  if (searchEl) {
+    // 仍保留即時搜尋
+    searchEl.addEventListener("input", () => renderItemsUI(false));
+    // Enter 也可以觸發
+    searchEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") renderItemsUI(false);
+    });
+  }
+  if (btnSearch) btnSearch.addEventListener("click", () => renderItemsUI(false));
+  if (btnClear) btnClear.addEventListener("click", () => {
+    if (searchEl) searchEl.value = "";
+    renderItemsUI(false);
+  });
+  if (filterEl) filterEl.addEventListener("change", () => renderItemsUI(false));
 
   // init
   setDirty(false);

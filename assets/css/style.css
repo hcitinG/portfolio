@@ -321,14 +321,22 @@ p {
   position: absolute;
   top: 55px;
   right: 15px;
-  bottom: 15px;
   left: 15px;
+
+  /* 讓背景高度跟著 menu 數量變化 */
+  bottom: auto;
+  height: auto;
+
+  /* 菜單太長時才捲動（避免超出螢幕） */
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+
   padding: 10px 0;
   border-radius: 10px;
   background-color: #fff;
-  overflow-y: auto;
   transition: 0.3s;
 }
+
 
 .navbar-mobile a,
 .navbar-mobile a:focus {

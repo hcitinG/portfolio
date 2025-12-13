@@ -10,7 +10,6 @@
   function deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
   }
-
   function ensureBaseStructure(d) {
     d = d || {};
     d.site = d.site || {};
@@ -721,3 +720,4 @@
     setDirty(false);
   }
 })();
+

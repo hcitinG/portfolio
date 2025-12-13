@@ -78,7 +78,7 @@
     if (filtersUl && Array.isArray(pf.filters)) {
       filtersUl.innerHTML = pf.filters
         .map((f, idx) => {
-          const key = f.key === "*" ? "*" : `.${f.key}`;
+          const key = f.key === "*" ? "*" : `.filter-${f.key}`;
           const active = idx === 0 ? "filter-active" : "";
           return `<li data-filter="${key}" class="${active}">${f.label || f.key}</li>`;
         })
@@ -260,3 +260,4 @@
 
   window.addEventListener("DOMContentLoaded", boot);
 })();
+

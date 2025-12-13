@@ -7,18 +7,121 @@
     return document.getElementById(id);
   }
 
+  function deepClone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  function ensureBaseStructure(d) {
+    d = d || {};
+    d.site = d.site || {};
+    d.site.title = d.site.title || "Portfolio";
+    d.site.hero =
+      d.site.hero || { headlinePrefix: "I'm", typedItems: [], subline: "", social: [] };
+    d.site.about = d.site.about || { image: "", lead: "", body: "" };
+
+    d.portfolio = d.portfolio || { filters: [{ key: "*", label: "All" }], items: [] };
+    d.portfolio.filters =
+      Array.isArray(d.portfolio.filters) && d.portfolio.filters.length
+        ? d.portfolio.filters
+        : [{ key: "*", label: "All" }];
+    d.portfolio.items = Array.isArray(d.portfolio.items) ? d.portfolio.items : [];
+
+    d.journal = d.journal || { posts: [] };
+    d.journal.posts = Array.isArray(d.journal.posts) ? d.journal.posts : [];
+
+    // 確保 items 的 details 結構不會缺
+    d.portfolio.items.forEach((it) => {
+      it.details = it.details || {};
+      it.details.images = it.details.images || ["", "", ""];
+    });
+
+    return d;
+  }
+
   const state = {
-    data: null,
+    data: null,   // 已儲存版本（基準）
+    draft: null,  // 正在編輯版本（草稿）
+    dirty: false,
   };
 
-  // Quill instances
+  // Quill
   let quillLead = null;
   let quillBody = null;
-  let quillSetting = false; // 避免程式填值時觸發 text-change 寫回造成循環
+  let quillSetting = false; // 填值時不要觸發 text-change
+
+  function setDirty(v) {
+    state.dirty = v;
+
+    const s = $("saveState");
+    if (s) s.textContent = v ? "未儲存" : "已儲存";
+
+    const btn = $("btnSave");
+    if (btn) btn.disabled = !v;
+  }
+
+  function markDirty() {
+    if (!state.dirty) setDirty(true);
+  }
+
+  function saveLocal() {
+    // 只保存「已儲存版本」
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data, null, 2));
+  }
+
+  function loadLocal() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    try {
+      state.data = ensureBaseStructure(JSON.parse(raw));
+      state.draft = deepClone(state.data);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function loadDefault() {
+    // 從專案讀取現有 content.json 作為初始值（基準）
+    try {
+      const res = await fetch("../assets/data/content.json", { cache: "no-store" });
+      if (res.ok) {
+        state.data = ensureBaseStructure(await res.json());
+        state.draft = deepClone(state.data);
+        saveLocal();
+        renderAll();
+        setDirty(false);
+        return;
+      }
+    } catch (_) {}
+
+    // 若抓不到（例如你還沒放檔），就用最小結構
+    state.data = ensureBaseStructure({
+      site: {
+        title: "Portfolio",
+        hero: { headlinePrefix: "I'm", typedItems: [], subline: "", social: [] },
+        about: { image: "", lead: "", body: "" },
+      },
+      portfolio: { filters: [{ key: "*", label: "All" }], items: [] },
+      journal: { posts: [] },
+    });
+
+    state.draft = deepClone(state.data);
+    saveLocal();
+    renderAll();
+    setDirty(false);
+  }
+
+  function downloadJson(filename, obj) {
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   function ensureQuill() {
-    // About 欄位已改成 <div id="aboutLead"></div> / <div id="aboutBody"></div>
-    // 並且 quill.min.js 必須先載入，否則 Quill 會是 undefined
     if (!window.Quill) return;
 
     if (!quillLead) {
@@ -39,8 +142,8 @@
 
       quillLead.on("text-change", () => {
         if (quillSetting) return;
-        state.data.site.about.lead = quillLead.root.innerHTML || "";
-        saveLocal();
+        state.draft.site.about.lead = quillLead.root.innerHTML || "";
+        markDirty();
       });
     }
 
@@ -62,75 +165,23 @@
 
       quillBody.on("text-change", () => {
         if (quillSetting) return;
-        state.data.site.about.body = quillBody.root.innerHTML || "";
-        saveLocal();
+        state.draft.site.about.body = quillBody.root.innerHTML || "";
+        markDirty();
       });
     }
   }
 
-  async function loadDefault() {
-    // 從專案讀取現有 content.json 作為初始值
-    try {
-      const res = await fetch("../assets/data/content.json", { cache: "no-store" });
-      if (res.ok) {
-        state.data = await res.json();
-        saveLocal();
-        renderAll();
-        return;
-      }
-    } catch (_) {}
-
-    // 若抓不到（例如你還沒放檔），就用最小結構
-    state.data = {
-      site: {
-        title: "Portfolio",
-        hero: { headlinePrefix: "I'm", typedItems: [], subline: "", social: [] },
-        about: { image: "", lead: "", body: "" },
-      },
-      portfolio: { filters: [{ key: "*", label: "All" }], items: [] },
-      journal: { posts: [] },
-    };
-    saveLocal();
-    renderAll();
-  }
-
-  function saveLocal() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data, null, 2));
-  }
-
-  function loadLocal() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    try {
-      state.data = JSON.parse(raw);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  function downloadJson(filename, obj) {
-    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
   function bindBasicFields() {
-    const hero = state.data.site.hero;
+    const hero = state.draft.site.hero;
 
-    // ===== Hero（維持原本）=====
+    // ===== Hero（讀 draft -> UI）=====
     $("heroPrefix").value = hero.headlinePrefix || "";
     $("heroTyped").value = (hero.typedItems || []).join(", ");
     $("heroSubline").value = hero.subline || "";
 
-    // 使用 oninput 覆蓋，避免 renderAll() 重複 addEventListener
     $("heroPrefix").oninput = () => {
       hero.headlinePrefix = $("heroPrefix").value;
-      saveLocal();
+      markDirty();
     };
 
     $("heroTyped").oninput = () => {
@@ -138,33 +189,28 @@
         .value.split(",")
         .map((s) => s.trim())
         .filter(Boolean);
-      saveLocal();
+      markDirty();
     };
 
     $("heroSubline").oninput = () => {
       hero.subline = $("heroSubline").value;
-      saveLocal();
+      markDirty();
     };
 
-    // ===== About（改用 Quill）=====
+    // ===== About（Quill + image）=====
     ensureQuill();
 
-    // image 還是用 input
-    $("aboutImage").value = state.data.site.about.image || "";
+    $("aboutImage").value = state.draft.site.about.image || "";
     $("aboutImage").oninput = () => {
-      state.data.site.about.image = $("aboutImage").value;
-      saveLocal();
+      state.draft.site.about.image = $("aboutImage").value;
+      markDirty();
     };
 
-    // Quill 填入既有值（HTML）
     if (quillLead && quillBody) {
       quillSetting = true;
-      quillLead.root.innerHTML = state.data.site.about.lead || "";
-      quillBody.root.innerHTML = state.data.site.about.body || "";
+      quillLead.root.innerHTML = state.draft.site.about.lead || "";
+      quillBody.root.innerHTML = state.draft.site.about.body || "";
       quillSetting = false;
-    } else {
-      // 如果 Quill 沒載入或元素不是 div，這裡不做事（避免整頁炸掉）
-      // 你只要確認 admin.html 的 script 順序 + About 欄位已改 div 即可
     }
   }
 
@@ -172,7 +218,7 @@
     const box = $("filtersList");
     box.innerHTML = "";
 
-    state.data.portfolio.filters.forEach((f, idx) => {
+    state.draft.portfolio.filters.forEach((f, idx) => {
       const row = document.createElement("div");
       row.className = "item-box";
 
@@ -192,28 +238,28 @@
       const labelEl = row.querySelector('input[data-k="label"]');
       const delBtn = row.querySelector("button");
 
-      if (keyEl)
-        keyEl.addEventListener("input", () => {
-          f.key = keyEl.value.trim();
-          saveLocal();
-        });
+      if (keyEl) keyEl.addEventListener("input", () => {
+        f.key = keyEl.value.trim();
+        markDirty();
+      });
 
-      if (labelEl)
-        labelEl.addEventListener("input", () => {
-          f.label = labelEl.value;
-          saveLocal();
-        });
+      if (labelEl) labelEl.addEventListener("input", () => {
+        f.label = labelEl.value;
+        markDirty();
+      });
 
       delBtn.addEventListener("click", () => {
         if (f.key === "*") return;
-        state.data.portfolio.filters.splice(idx, 1);
+        const removedKey = f.key;
+
+        state.draft.portfolio.filters.splice(idx, 1);
 
         // 同步移除 items.filters 中相同 key
-        state.data.portfolio.items.forEach((it) => {
-          it.filters = (it.filters || []).filter((k) => k !== f.key);
+        state.draft.portfolio.items.forEach((it) => {
+          it.filters = (it.filters || []).filter((k) => k !== removedKey);
         });
 
-        saveLocal();
+        markDirty();
         renderFilters();
         renderItems();
       });
@@ -226,9 +272,9 @@
     const box = $("itemsList");
     box.innerHTML = "";
 
-    const filterKeys = state.data.portfolio.filters.map((f) => f.key).filter((k) => k !== "*");
+    const filterKeys = state.draft.portfolio.filters.map((f) => f.key).filter((k) => k !== "*");
 
-    state.data.portfolio.items.forEach((it, idx) => {
+    state.draft.portfolio.items.forEach((it, idx) => {
       const row = document.createElement("div");
       row.className = "item-box";
 
@@ -284,46 +330,44 @@
       // delete item
       const delBtn = row.querySelector("button.btn-outline-danger");
       delBtn.addEventListener("click", () => {
-        state.data.portfolio.items.splice(idx, 1);
-        saveLocal();
+        state.draft.portfolio.items.splice(idx, 1);
+        markDirty();
         renderItems();
       });
 
-      // bind basic fields
       row.querySelector('input[data-k="id"]').addEventListener("input", (e) => {
         it.id = e.target.value.trim();
-        saveLocal();
+        markDirty();
       });
 
       row.querySelector('input[data-k="title"]').addEventListener("input", (e) => {
         it.title = e.target.value;
-        saveLocal();
-        renderItems(); // 讓標題即時反映在列表 header
+        markDirty();
+        renderItems(); // header 即時更新
       });
 
       row.querySelector('input[data-k="subtitle"]').addEventListener("input", (e) => {
         it.subtitle = e.target.value;
-        saveLocal();
+        markDirty();
       });
 
       row.querySelector('input[data-k="thumb"]').addEventListener("input", (e) => {
         it.thumb = e.target.value;
-        saveLocal();
+        markDirty();
       });
 
       row.querySelector('input[data-k="projectUrl"]').addEventListener("input", (e) => {
         it.details = it.details || {};
         it.details.projectUrl = e.target.value;
-        saveLocal();
+        markDirty();
       });
 
       row.querySelector('textarea[data-k="desc"]').addEventListener("input", (e) => {
         it.details = it.details || {};
         it.details.descriptionBody = e.target.value;
-        saveLocal();
+        markDirty();
       });
 
-      // filters checkboxes
       row.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
         cb.addEventListener("change", () => {
           const v = cb.value;
@@ -331,18 +375,17 @@
           if (cb.checked) set.add(v);
           else set.delete(v);
           it.filters = Array.from(set);
-          saveLocal();
+          markDirty();
         });
       });
 
-      // detail images
       row.querySelectorAll("input[data-img]").forEach((inp) => {
         inp.addEventListener("input", () => {
           const i = Number(inp.getAttribute("data-img"));
           it.details = it.details || {};
           it.details.images = it.details.images || ["", "", ""];
           it.details.images[i] = inp.value;
-          saveLocal();
+          markDirty();
         });
       });
 
@@ -356,16 +399,23 @@
     renderItems();
   }
 
+  function applySave() {
+    // 把草稿套用到已儲存版本，並寫入 localStorage
+    state.data = deepClone(state.draft);
+    saveLocal();
+    setDirty(false);
+  }
+
   // Buttons
   $("btnAddFilter").addEventListener("click", () => {
-    state.data.portfolio.filters.push({ key: "new", label: "New" });
-    saveLocal();
+    state.draft.portfolio.filters.push({ key: "new", label: "New" });
+    markDirty();
     renderFilters();
   });
 
   $("btnAddItem").addEventListener("click", () => {
-    const n = state.data.portfolio.items.length + 1;
-    state.data.portfolio.items.push({
+    const n = state.draft.portfolio.items.length + 1;
+    state.draft.portfolio.items.push({
       id: `project-${String(n).padStart(2, "0")}`,
       title: `Work ${n}`,
       subtitle: "",
@@ -383,11 +433,24 @@
         images: ["", "", ""],
       },
     });
-    saveLocal();
+    markDirty();
     renderItems();
   });
 
+  // ✅ 新增：儲存按鈕
+  const btnSave = $("btnSave");
+  if (btnSave) {
+    btnSave.addEventListener("click", () => {
+      applySave();
+      alert("已儲存");
+    });
+  }
+
   $("btnExport").addEventListener("click", () => {
+    if (state.dirty) {
+      alert("你有未儲存的變更，請先按「儲存變更」再匯出。");
+      return;
+    }
     downloadJson("content.json", state.data);
   });
 
@@ -398,9 +461,13 @@
     if (!f) return;
     const txt = await f.text();
     try {
-      state.data = JSON.parse(txt);
+      const imported = ensureBaseStructure(JSON.parse(txt));
+      // 匯入視為新的「已儲存版本」
+      state.data = imported;
+      state.draft = deepClone(state.data);
       saveLocal();
       renderAll();
+      setDirty(false);
       alert("匯入成功");
     } catch {
       alert("JSON 解析失敗");
@@ -410,6 +477,14 @@
   });
 
   // init
-  if (!loadLocal()) loadDefault();
-  else renderAll();
+  setDirty(false);
+
+  if (!loadLocal()) {
+    loadDefault();
+  } else {
+    state.data = ensureBaseStructure(state.data);
+    state.draft = ensureBaseStructure(state.draft);
+    renderAll();
+    setDirty(false);
+  }
 })();

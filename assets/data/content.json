@@ -3,53 +3,97 @@
     "title": "Portfolio",
     "hero": {
       "headlinePrefix": "I'm",
-      "typedItems": ["Alex Smith", "Designer", "Developer"],
+      "typedItems": [
+        "Alex Smith",
+        "Designer",
+        "Developer"
+      ],
       "subline": "Designer, Developer",
       "social": [
-        { "label": "Facebook", "url": "#", "iconClass": "bi bi-facebook" },
-        { "label": "Instagram", "url": "#", "iconClass": "bi bi-instagram" },
-        { "label": "LinkedIn", "url": "#", "iconClass": "bi bi-linkedin" }
+        {
+          "label": "Facebook",
+          "url": "#",
+          "iconClass": "bi bi-facebook"
+        },
+        {
+          "label": "Instagram",
+          "url": "#",
+          "iconClass": "bi bi-instagram"
+        },
+        {
+          "label": "LinkedIn",
+          "url": "#",
+          "iconClass": "bi bi-linkedin"
+        }
       ]
     },
     "about": {
       "image": "",
       "heading": "About",
       "lead": "我是一位視覺／UI 設計師，擅長品牌與數位設計。",
-      "body": "這裡放較長的自我介紹文字。"
+      "body": "這裡放較長的自我介紹文字~~"
     }
   },
   "portfolio": {
     "filters": [
-      { "key": "*", "label": "All" },
-      { "key": "app", "label": "App" },
-      { "key": "web", "label": "Web" },
-      { "key": "card", "label": "Card" }
+      {
+        "key": "*",
+        "label": "All"
+      },
+      {
+        "key": "app",
+        "label": "App"
+      },
+      {
+        "key": "web",
+        "label": "Web"
+      },
+      {
+        "key": "card",
+        "label": "Card"
+      },
+      {
+        "key": "new",
+        "label": "New"
+      },
+      {
+        "key": "new",
+        "label": "New"
+      }
     ],
     "items": [
       {
         "id": "project-app-01",
         "title": "App 1",
         "subtitle": "App",
-        "filters": ["app"],
-        "thumb": "",
+        "filters": [
+          "app"
+        ],
+        "thumb": "https://takakaweb.website/wp-content/uploads/2025/12/%E6%98%9F%E7%B1%B3-%E9%88%A3%E8%A6%81%E5%90%B8%E6%94%B6%E6%89%8D%E6%9C%89%E7%94%A8-1024x1024.jpg",
         "lightbox": "",
         "externalUrl": "",
         "details": {
           "category": "App",
           "client": "Client A",
           "date": "2025-01",
-          "projectUrl": "https://example.com",
+          "projectUrl": "",
           "descriptionTitle": "App 1 作品說明標題",
           "descriptionBody": "這裡放作品說明內容。",
-          "images": ["", "", ""]
+          "images": [
+            "",
+            "",
+            ""
+          ]
         }
       },
       {
         "id": "project-web-01",
         "title": "Web 1",
         "subtitle": "Web",
-        "filters": ["web"],
-        "thumb": "",
+        "filters": [
+          "web"
+        ],
+        "thumb": "https://takakaweb.website/wp-content/uploads/2025/12/%E7%BE%8E%E8%82%A1%E9%81%B8%E6%88%91-576x1024.jpg",
         "lightbox": "",
         "externalUrl": "",
         "details": {
@@ -59,7 +103,35 @@
           "projectUrl": "",
           "descriptionTitle": "Web 1 作品說明標題",
           "descriptionBody": "這裡放作品說明內容。",
-          "images": ["", "", ""]
+          "images": [
+            "",
+            "",
+            ""
+          ]
+        }
+      },
+      {
+        "id": "project-03",
+        "title": "Work 3",
+        "subtitle": "",
+        "filters": [
+          "card"
+        ],
+        "thumb": "",
+        "lightbox": "",
+        "externalUrl": "",
+        "details": {
+          "category": "",
+          "client": "",
+          "date": "",
+          "projectUrl": "",
+          "descriptionTitle": "",
+          "descriptionBody": "",
+          "images": [
+            "",
+            "",
+            ""
+          ]
         }
       }
     ]

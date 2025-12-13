@@ -3,60 +3,42 @@
 
   const STORAGE_KEY = "portfolio_admin_content_v1";
 
-  function $(id) {
-    return document.getElementById(id);
-  }
-
-  function deepClone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-  }
+  const $ = (id) => document.getElementById(id);
+  const deepClone = (o) => JSON.parse(JSON.stringify(o));
 
   function ensureBaseStructure(d) {
     d = d || {};
     d.site = d.site || {};
-    d.site.title = d.site.title || "Portfolio";
-    d.site.hero =
-      d.site.hero || { headlinePrefix: "I'm", typedItems: [], subline: "", social: [] };
+    d.site.hero = d.site.hero || { headlinePrefix: "I'm", typedItems: [], subline: "" };
     d.site.about = d.site.about || { image: "", lead: "", body: "" };
 
-    d.portfolio = d.portfolio || { filters: [{ key: "*", label: "All" }], items: [] };
-    d.portfolio.filters =
-      Array.isArray(d.portfolio.filters) && d.portfolio.filters.length
-        ? d.portfolio.filters
-        : [{ key: "*", label: "All" }];
+    d.portfolio = d.portfolio || {};
+    d.portfolio.filters = Array.isArray(d.portfolio.filters) && d.portfolio.filters.length
+      ? d.portfolio.filters
+      : [{ key: "*", label: "All" }];
     d.portfolio.items = Array.isArray(d.portfolio.items) ? d.portfolio.items : [];
 
-    d.journal = d.journal || { posts: [] };
-    d.journal.posts = Array.isArray(d.journal.posts) ? d.journal.posts : [];
-
-    // 確保 items 的 details 結構不會缺
     d.portfolio.items.forEach((it) => {
+      it.filters = Array.isArray(it.filters) ? it.filters : [];
       it.details = it.details || {};
       it.details.images = it.details.images || ["", "", ""];
     });
 
+    d.journal = d.journal || { posts: [] };
     return d;
   }
 
   const state = {
-    data: null,   // 已儲存版本（基準）
-    draft: null,  // 正在編輯版本（草稿）
+    data: null,
+    draft: null,
     dirty: false,
+    selectedId: null
   };
-
-  // Quill
-  let quillLead = null;
-  let quillBody = null;
-  let quillSetting = false; // 填值時不要觸發 text-change
 
   function setDirty(v) {
     state.dirty = v;
-
-    const s = $("saveState");
-    if (s) s.textContent = v ? "未儲存" : "已儲存";
-
-    const btn = $("btnSave");
-    if (btn) btn.disabled = !v;
+    $("saveState").textContent = v ? "未儲存" : "已儲存";
+    $("btnSave").disabled = !v;
   }
 
   function markDirty() {
@@ -64,7 +46,6 @@
   }
 
   function saveLocal() {
-    // 只保存「已儲存版本」
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data, null, 2));
   }
 
@@ -81,7 +62,6 @@
   }
 
   async function loadDefault() {
-    // 從專案讀取現有 content.json 作為初始值（基準）
     try {
       const res = await fetch("../assets/data/content.json", { cache: "no-store" });
       if (res.ok) {
@@ -92,54 +72,26 @@
         setDirty(false);
         return;
       }
-    } catch (_) {}
+    } catch {}
 
-    // 若抓不到（例如你還沒放檔），就用最小結構
-    state.data = ensureBaseStructure({
-      site: {
-        title: "Portfolio",
-        hero: { headlinePrefix: "I'm", typedItems: [], subline: "", social: [] },
-        about: { image: "", lead: "", body: "" },
-      },
-      portfolio: { filters: [{ key: "*", label: "All" }], items: [] },
-      journal: { posts: [] },
-    });
-
+    state.data = ensureBaseStructure({});
     state.draft = deepClone(state.data);
     saveLocal();
     renderAll();
     setDirty(false);
   }
 
-  function downloadJson(filename, obj) {
-    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+  /* ---------- Hero / About ---------- */
+
+  let quillLead = null;
+  let quillBody = null;
+  let quillSetting = false;
 
   function ensureQuill() {
     if (!window.Quill) return;
 
     if (!quillLead) {
-      quillLead = new Quill("#aboutLead", {
-        theme: "snow",
-        modules: {
-          toolbar: [
-            [{ header: [1, 2, 3, false] }],
-            ["bold", "italic", "underline", "strike"],
-            [{ color: [] }, { background: [] }],
-            [{ align: [] }],
-            [{ list: "ordered" }, { list: "bullet" }],
-            ["link"],
-            ["clean"],
-          ],
-        },
-      });
-
+      quillLead = new Quill("#aboutLead", { theme: "snow" });
       quillLead.on("text-change", () => {
         if (quillSetting) return;
         state.draft.site.about.lead = quillLead.root.innerHTML || "";
@@ -148,21 +100,7 @@
     }
 
     if (!quillBody) {
-      quillBody = new Quill("#aboutBody", {
-        theme: "snow",
-        modules: {
-          toolbar: [
-            [{ header: [1, 2, 3, false] }],
-            ["bold", "italic", "underline", "strike"],
-            [{ color: [] }, { background: [] }],
-            [{ align: [] }],
-            [{ list: "ordered" }, { list: "bullet" }],
-            ["link"],
-            ["clean"],
-          ],
-        },
-      });
-
+      quillBody = new Quill("#aboutBody", { theme: "snow" });
       quillBody.on("text-change", () => {
         if (quillSetting) return;
         state.draft.site.about.body = quillBody.root.innerHTML || "";
@@ -174,30 +112,17 @@
   function bindBasicFields() {
     const hero = state.draft.site.hero;
 
-    // ===== Hero（讀 draft -> UI）=====
     $("heroPrefix").value = hero.headlinePrefix || "";
     $("heroTyped").value = (hero.typedItems || []).join(", ");
     $("heroSubline").value = hero.subline || "";
 
-    $("heroPrefix").oninput = () => {
-      hero.headlinePrefix = $("heroPrefix").value;
-      markDirty();
-    };
-
+    $("heroPrefix").oninput = () => { hero.headlinePrefix = $("heroPrefix").value; markDirty(); };
     $("heroTyped").oninput = () => {
-      hero.typedItems = $("heroTyped")
-        .value.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      hero.typedItems = $("heroTyped").value.split(",").map(s => s.trim()).filter(Boolean);
       markDirty();
     };
+    $("heroSubline").oninput = () => { hero.subline = $("heroSubline").value; markDirty(); };
 
-    $("heroSubline").oninput = () => {
-      hero.subline = $("heroSubline").value;
-      markDirty();
-    };
-
-    // ===== About（Quill + image）=====
     ensureQuill();
 
     $("aboutImage").value = state.draft.site.about.image || "";
@@ -214,6 +139,8 @@
     }
   }
 
+  /* ---------- Filters ---------- */
+
   function renderFilters() {
     const box = $("filtersList");
     box.innerHTML = "";
@@ -221,270 +148,215 @@
     state.draft.portfolio.filters.forEach((f, idx) => {
       const row = document.createElement("div");
       row.className = "item-box";
-
       row.innerHTML = `
         <div class="kv">
           <div class="small-muted">key</div>
-          <input class="form-control form-control-sm" data-k="key" value="${f.key || ""}" ${f.key === "*" ? "disabled" : ""} />
+          <input class="form-control form-control-sm" value="${f.key}" ${f.key === "*" ? "disabled" : ""}/>
           <div class="small-muted">label</div>
-          <input class="form-control form-control-sm" data-k="label" value="${f.label || ""}" />
+          <input class="form-control form-control-sm" value="${f.label || ""}"/>
         </div>
-        <div class="mt-2 d-flex gap-2">
-          <button class="btn btn-sm btn-outline-danger" ${f.key === "*" ? "disabled" : ""}>刪除</button>
-        </div>
+        <button class="btn btn-sm btn-outline-danger mt-2" ${f.key === "*" ? "disabled" : ""}>刪除</button>
       `;
 
-      const keyEl = row.querySelector('input[data-k="key"]');
-      const labelEl = row.querySelector('input[data-k="label"]');
+      const [keyEl, labelEl] = row.querySelectorAll("input");
       const delBtn = row.querySelector("button");
 
-      if (keyEl) keyEl.addEventListener("input", () => {
-        f.key = keyEl.value.trim();
-        markDirty();
-      });
+      keyEl.oninput = () => { f.key = keyEl.value.trim(); markDirty(); renderItemsUI(); };
+      labelEl.oninput = () => { f.label = labelEl.value; markDirty(); };
 
-      if (labelEl) labelEl.addEventListener("input", () => {
-        f.label = labelEl.value;
-        markDirty();
-      });
-
-      delBtn.addEventListener("click", () => {
-        if (f.key === "*") return;
-        const removedKey = f.key;
-
+      delBtn.onclick = () => {
         state.draft.portfolio.filters.splice(idx, 1);
-
-        // 同步移除 items.filters 中相同 key
-        state.draft.portfolio.items.forEach((it) => {
-          it.filters = (it.filters || []).filter((k) => k !== removedKey);
+        state.draft.portfolio.items.forEach(it => {
+          it.filters = it.filters.filter(k => k !== f.key);
         });
-
         markDirty();
         renderFilters();
-        renderItems();
-      });
+        renderItemsUI();
+      };
 
       box.appendChild(row);
     });
+
+    renderFilterDropdown();
   }
 
-  function renderItems() {
+  /* ---------- Items UI ---------- */
+
+  function getFilterKeys() {
+    return state.draft.portfolio.filters.map(f => f.key).filter(k => k !== "*");
+  }
+
+  function renderFilterDropdown() {
+    const sel = $("itemFilter");
+    sel.innerHTML =
+      `<option value="*">全部</option>` +
+      getFilterKeys().map(k => `<option value="${k}">${k}</option>`).join("");
+  }
+
+  function applySearch(items) {
+    const q = $("itemSearch").value.trim().toLowerCase();
+    const fk = $("itemFilter").value;
+    return items.filter(it => {
+      if (fk !== "*" && !it.filters.includes(fk)) return false;
+      if (!q) return true;
+      return `${it.title} ${it.id}`.toLowerCase().includes(q);
+    });
+  }
+
+  let sortable = null;
+
+  function renderItemsList() {
     const box = $("itemsList");
     box.innerHTML = "";
 
-    const filterKeys = state.draft.portfolio.filters.map((f) => f.key).filter((k) => k !== "*");
+    const items = applySearch(state.draft.portfolio.items);
 
-    state.draft.portfolio.items.forEach((it, idx) => {
+    items.forEach(it => {
       const row = document.createElement("div");
-      row.className = "item-box";
-
-      const checked = (k) => ((it.filters || []).includes(k) ? "checked" : "");
+      row.className = "item-row" + (it.id === state.selectedId ? " is-active" : "");
+      row.dataset.id = it.id;
 
       row.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center">
-          <strong>${it.title || "(未命名作品)"}</strong>
-          <button class="btn btn-sm btn-outline-danger">刪除</button>
+        <div class="dragHandle">⋮⋮</div>
+        <img class="listThumb">
+        <div class="itemMeta">
+          <div class="title">${it.title || "(未命名)"}</div>
+          <div class="sub">${it.id}</div>
         </div>
-
-        <div class="kv mt-2">
-          <div class="small-muted">id</div>
-          <input class="form-control form-control-sm" data-k="id" value="${it.id || ""}" placeholder="project-xxx" />
-          <div class="small-muted">title</div>
-          <input class="form-control form-control-sm" data-k="title" value="${it.title || ""}" />
-          <div class="small-muted">subtitle</div>
-          <input class="form-control form-control-sm" data-k="subtitle" value="${it.subtitle || ""}" />
-          <div class="small-muted">thumb</div>
-          <input class="form-control form-control-sm" data-k="thumb" value="${it.thumb || ""}" placeholder="留空＝自動 placeholder" />
-          <div class="small-muted">projectUrl</div>
-          <input class="form-control form-control-sm" data-k="projectUrl" value="${(it.details && it.details.projectUrl) || ""}" />
-          <div class="small-muted">description</div>
-          <textarea class="form-control form-control-sm" data-k="desc" rows="3">${(it.details && it.details.descriptionBody) || ""}</textarea>
-        </div>
-
-        <div class="mt-2">
-          <div class="small-muted mb-1">filters</div>
-          <div class="d-flex flex-wrap gap-2">
-            ${filterKeys
-              .map(
-                (k) => `
-              <label class="form-check form-check-inline m-0">
-                <input class="form-check-input" type="checkbox" value="${k}" ${checked(k)} />
-                <span class="form-check-label">${k}</span>
-              </label>
-            `
-              )
-              .join("")}
-          </div>
-        </div>
-
-        <div class="mt-2">
-          <div class="small-muted mb-1">detail images（最多 3 張，留空＝placeholder）</div>
-          <div class="row g-2">
-            <div class="col-12 col-md-4"><input class="form-control form-control-sm" data-img="0" value="${it.details?.images?.[0] || ""}" /></div>
-            <div class="col-12 col-md-4"><input class="form-control form-control-sm" data-img="1" value="${it.details?.images?.[1] || ""}" /></div>
-            <div class="col-12 col-md-4"><input class="form-control form-control-sm" data-img="2" value="${it.details?.images?.[2] || ""}" /></div>
-          </div>
-        </div>
+        <button class="btn btn-sm btn-outline-primary">編輯</button>
       `;
 
-      // delete item
-      const delBtn = row.querySelector("button.btn-outline-danger");
-      delBtn.addEventListener("click", () => {
-        state.draft.portfolio.items.splice(idx, 1);
-        markDirty();
-        renderItems();
-      });
+      const img = row.querySelector("img");
+      if (window.bindImgFallback) {
+        img.src = it.thumb || "";
+        window.bindImgFallback(img, it.title || "Work", 400, 400);
+      }
 
-      row.querySelector('input[data-k="id"]').addEventListener("input", (e) => {
-        it.id = e.target.value.trim();
-        markDirty();
-      });
-
-      row.querySelector('input[data-k="title"]').addEventListener("input", (e) => {
-        it.title = e.target.value;
-        markDirty();
-        renderItems(); // header 即時更新
-      });
-
-      row.querySelector('input[data-k="subtitle"]').addEventListener("input", (e) => {
-        it.subtitle = e.target.value;
-        markDirty();
-      });
-
-      row.querySelector('input[data-k="thumb"]').addEventListener("input", (e) => {
-        it.thumb = e.target.value;
-        markDirty();
-      });
-
-      row.querySelector('input[data-k="projectUrl"]').addEventListener("input", (e) => {
-        it.details = it.details || {};
-        it.details.projectUrl = e.target.value;
-        markDirty();
-      });
-
-      row.querySelector('textarea[data-k="desc"]').addEventListener("input", (e) => {
-        it.details = it.details || {};
-        it.details.descriptionBody = e.target.value;
-        markDirty();
-      });
-
-      row.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
-        cb.addEventListener("change", () => {
-          const v = cb.value;
-          const set = new Set(it.filters || []);
-          if (cb.checked) set.add(v);
-          else set.delete(v);
-          it.filters = Array.from(set);
-          markDirty();
-        });
-      });
-
-      row.querySelectorAll("input[data-img]").forEach((inp) => {
-        inp.addEventListener("input", () => {
-          const i = Number(inp.getAttribute("data-img"));
-          it.details = it.details || {};
-          it.details.images = it.details.images || ["", "", ""];
-          it.details.images[i] = inp.value;
-          markDirty();
-        });
-      });
+      row.querySelector("button").onclick = () => {
+        state.selectedId = it.id;
+        renderItemsUI(false);
+      };
 
       box.appendChild(row);
     });
+
+    if (!sortable) {
+      sortable = new Sortable(box, {
+        handle: ".dragHandle",
+        animation: 150,
+        onEnd() {
+          const ids = [...box.children].map(el => el.dataset.id);
+          state.draft.portfolio.items = ids.map(id =>
+            state.draft.portfolio.items.find(it => it.id === id)
+          );
+          markDirty();
+        }
+      });
+    }
   }
+
+  function renderEditor() {
+    const it = state.draft.portfolio.items.find(x => x.id === state.selectedId);
+    $("itemEditorEmpty").classList.toggle("d-none", !!it);
+    $("itemEditor").classList.toggle("d-none", !it);
+    if (!it) return;
+
+    $("editingTitle").textContent = it.title || it.id;
+
+    $("ed_id").value = it.id;
+    $("ed_title").value = it.title || "";
+    $("ed_subtitle").value = it.subtitle || "";
+    $("ed_thumb").value = it.thumb || "";
+    $("ed_projectUrl").value = it.details.projectUrl || "";
+    $("ed_desc").value = it.details.descriptionBody || "";
+
+    const pv = $("pv_thumb");
+    pv.src = it.thumb || "";
+    if (window.bindImgFallback) window.bindImgFallback(pv, it.title, 400, 400);
+
+    $("ed_title").oninput = () => { it.title = $("ed_title").value; markDirty(); renderItemsList(); };
+    $("ed_subtitle").oninput = () => { it.subtitle = $("ed_subtitle").value; markDirty(); };
+    $("ed_thumb").oninput = () => {
+      it.thumb = $("ed_thumb").value;
+      pv.src = it.thumb;
+      if (window.bindImgFallback) window.bindImgFallback(pv, it.title, 400, 400);
+      markDirty();
+      renderItemsList();
+    };
+
+    $("btnDeleteItem").onclick = () => {
+      if (!confirm("確定刪除？")) return;
+      state.draft.portfolio.items =
+        state.draft.portfolio.items.filter(x => x !== it);
+      state.selectedId = null;
+      markDirty();
+      renderItemsUI();
+    };
+  }
+
+  function renderItemsUI(reset = true) {
+    if (reset) state.selectedId = null;
+    renderFilterDropdown();
+    renderItemsList();
+    renderEditor();
+  }
+
+  /* ---------- Overall ---------- */
 
   function renderAll() {
     bindBasicFields();
     renderFilters();
-    renderItems();
+    renderItemsUI();
   }
 
-  function applySave() {
-    // 把草稿套用到已儲存版本，並寫入 localStorage
-    state.data = deepClone(state.draft);
-    saveLocal();
-    setDirty(false);
-  }
-
-  // Buttons
-  $("btnAddFilter").addEventListener("click", () => {
+  $("btnAddFilter").onclick = () => {
     state.draft.portfolio.filters.push({ key: "new", label: "New" });
     markDirty();
     renderFilters();
-  });
+  };
 
-  $("btnAddItem").addEventListener("click", () => {
+  $("btnAddItem").onclick = () => {
     const n = state.draft.portfolio.items.length + 1;
+    const id = `project-${String(n).padStart(2, "0")}`;
     state.draft.portfolio.items.push({
-      id: `project-${String(n).padStart(2, "0")}`,
-      title: `Work ${n}`,
-      subtitle: "",
-      filters: [],
-      thumb: "",
-      lightbox: "",
-      externalUrl: "",
-      details: {
-        category: "",
-        client: "",
-        date: "",
-        projectUrl: "",
-        descriptionTitle: "",
-        descriptionBody: "",
-        images: ["", "", ""],
-      },
+      id, title: `Work ${n}`, subtitle: "", filters: [], thumb: "",
+      details: { images: ["", "", ""] }
     });
+    state.selectedId = id;
     markDirty();
-    renderItems();
-  });
+    renderItemsUI(false);
+  };
 
-  // ✅ 新增：儲存按鈕
-  const btnSave = $("btnSave");
-  if (btnSave) {
-    btnSave.addEventListener("click", () => {
-      applySave();
-      alert("已儲存");
-    });
-  }
+  $("btnSave").onclick = () => {
+    state.data = deepClone(state.draft);
+    saveLocal();
+    setDirty(false);
+    alert("已儲存");
+  };
 
-  $("btnExport").addEventListener("click", () => {
-    if (state.dirty) {
-      alert("你有未儲存的變更，請先按「儲存變更」再匯出。");
-      return;
-    }
-    downloadJson("content.json", state.data);
-  });
+  $("btnExport").onclick = () => {
+    if (state.dirty) return alert("請先儲存");
+    const blob = new Blob([JSON.stringify(state.data, null, 2)]);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "content.json";
+    a.click();
+  };
 
-  $("btnImport").addEventListener("click", () => $("fileInput").click());
-
-  $("fileInput").addEventListener("change", async (e) => {
-    const f = e.target.files && e.target.files[0];
+  $("btnImport").onclick = () => $("fileInput").click();
+  $("fileInput").onchange = async (e) => {
+    const f = e.target.files[0];
     if (!f) return;
-    const txt = await f.text();
-    try {
-      const imported = ensureBaseStructure(JSON.parse(txt));
-      // 匯入視為新的「已儲存版本」
-      state.data = imported;
-      state.draft = deepClone(state.data);
-      saveLocal();
-      renderAll();
-      setDirty(false);
-      alert("匯入成功");
-    } catch {
-      alert("JSON 解析失敗");
-    } finally {
-      e.target.value = "";
-    }
-  });
-
-  // init
-  setDirty(false);
-
-  if (!loadLocal()) {
-    loadDefault();
-  } else {
-    state.data = ensureBaseStructure(state.data);
-    state.draft = ensureBaseStructure(state.draft);
+    state.data = ensureBaseStructure(JSON.parse(await f.text()));
+    state.draft = deepClone(state.data);
+    saveLocal();
     renderAll();
     setDirty(false);
-  }
+  };
+
+  $("itemSearch").oninput = () => renderItemsUI(false);
+  $("itemFilter").onchange = () => renderItemsUI(false);
+
+  setDirty(false);
+  loadLocal() ? renderAll() : loadDefault();
 })();

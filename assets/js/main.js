@@ -1,10 +1,10 @@
 /**
- * Template Name: Folio
- * Updated: Jul 27 2023 with Bootstrap v5.3.1
- * Template URL: https://bootstrapmade.com/folio-bootstrap-portfolio-template/
- * Author: BootstrapMade.com
- * License: https://bootstrapmade.com/license/
- */
+* Template Name: Folio
+* Updated: Jul 27 2023 with Bootstrap v5.3.1
+* Template URL: https://bootstrapmade.com/folio-bootstrap-portfolio-template/
+* Author: BootstrapMade.com
+* License: https://bootstrapmade.com/license/
+*/
 (function() {
   "use strict";
 
@@ -65,14 +65,12 @@
    * Scrolls to an element with header offset
    */
   const scrollto = (el) => {
-    let header = select('#header')
-    let offset = header.offsetHeight
+    const header = select('#header')
+    const elementPos = select(el).offsetTop
 
-    if (!header.classList.contains('header-scrolled')) {
-      offset -= 16
-    }
+    // 只有在 header 進入 fixed 模式時，才需要扣掉 header 高度
+    const offset = (header && header.classList.contains('fixed-top')) ? header.offsetHeight : 0
 
-    let elementPos = select(el).offsetTop
     window.scrollTo({
       top: elementPos - offset,
       behavior: 'smooth'
@@ -80,24 +78,30 @@
   }
 
   /**
-   * Toggle .header-scrolled class to #header when page is scrolled
-   * + Make header fixed only after scrolling
+   * Toggle fixed header when page is scrolled
    */
   let selectHeader = select('#header')
   if (selectHeader) {
     const headerScrolled = () => {
-      if (window.scrollY > 100) {
-        selectHeader.classList.add('header-scrolled')
-        selectHeader.classList.add('fixed-top')
+      const shouldFix = window.scrollY > 100
 
-        // Prevent layout jump when header becomes fixed
-        document.body.style.paddingTop = `${selectHeader.offsetHeight}px`
+      if (shouldFix) {
+        if (!selectHeader.classList.contains('fixed-top')) {
+          // 讓內容區塊不跳動：在 header 變 fixed 前先補上 body padding
+          const headerHeight = selectHeader.offsetHeight
+          document.body.style.paddingTop = `${headerHeight}px`
+          selectHeader.classList.add('fixed-top')
+        }
+        selectHeader.classList.add('header-scrolled')
       } else {
         selectHeader.classList.remove('header-scrolled')
-        selectHeader.classList.remove('fixed-top')
-        document.body.style.paddingTop = '0px'
+        if (selectHeader.classList.contains('fixed-top')) {
+          selectHeader.classList.remove('fixed-top')
+          document.body.style.paddingTop = ''
+        }
       }
     }
+
     window.addEventListener('load', headerScrolled)
     onscroll(document, headerScrolled)
   }
@@ -122,23 +126,14 @@
    * Mobile nav toggle
    */
   on('click', '.mobile-nav-toggle', function(e) {
-    select('#navbar').classList.toggle('navbar-mobile')
+    let navbar = select('#navbar')
+    navbar.classList.toggle('navbar-mobile')
     this.classList.toggle('bi-list')
     this.classList.toggle('bi-x')
   })
 
   /**
-   * Mobile nav dropdowns activate
-   */
-  on('click', '.navbar .dropdown > a', function(e) {
-    if (select('#navbar').classList.contains('navbar-mobile')) {
-      e.preventDefault()
-      this.nextElementSibling.classList.toggle('dropdown-active')
-    }
-  }, true)
-
-  /**
-   * Scrool with ofset on links with a class name .scrollto
+   * Scroll with ofset on links with a class name .scrollto
    */
   on('click', '.scrollto', function(e) {
     if (select(this.hash)) {
@@ -167,7 +162,7 @@
   });
 
   /**
-   * Hero type effect
+   * Initiate typed effect
    */
   const typed = select('.typed')
   if (typed) {
@@ -183,39 +178,40 @@
   }
 
   /**
-   * Testimonials slider
+   * Initiate portfolio lightbox 
    */
-  new Swiper('.services-slider', {
-    speed: 600,
+  const portfolioLightbox = GLightbox({
+    selector: '.portfolio-lightbox'
+  });
+
+  /**
+   * Initiate portfolio details lightbox 
+   */
+  const portfolioDetailsLightbox = GLightbox({
+    selector: '.portfolio-details-lightbox',
+    width: '90%',
+    height: '90vh'
+  });
+
+  /**
+   * Portfolio details slider
+   */
+  new Swiper('.portfolio-details-slider', {
+    speed: 400,
     loop: true,
     autoplay: {
       delay: 5000,
       disableOnInteraction: false
     },
-    slidesPerView: 'auto',
     pagination: {
       el: '.swiper-pagination',
       type: 'bullets',
       clickable: true
-    },
-    breakpoints: {
-      320: {
-        slidesPerView: 1,
-        spaceBetween: 20
-      },
-      768: {
-        slidesPerView: 2,
-        spaceBetween: 20
-      },
-      1200: {
-        slidesPerView: 4,
-        spaceBetween: 20
-      }
     }
   });
 
   /**
-   * Porfolio isotope and filter
+   * Portfolio isotope and filter
    */
   window.addEventListener('load', () => {
     let portfolioContainer = select('.portfolio-container');
@@ -237,34 +233,8 @@
         portfolioIsotope.arrange({
           filter: this.getAttribute('data-filter')
         });
-
       }, true);
     }
-
   });
 
-  /**
-   * Initiate portfolio lightbox 
-   */
-  const portfolioLightbox = GLightbox({
-    selector: '.portfolio-lightbox'
-  });
-
-  /**
-   * Portfolio details slider
-   */
-  new Swiper('.portfolio-details-slider', {
-    speed: 400,
-    loop: true,
-    autoplay: {
-      delay: 5000,
-      disableOnInteraction: false
-    },
-    pagination: {
-      el: '.swiper-pagination',
-      type: 'bullets',
-      clickable: true
-    }
-  });
-
-})();
+})()

@@ -20,7 +20,6 @@
   }
 
   function renderHero(data) {
-    // Hero typed items（模板原本使用 .typed + data-typed-items）:contentReference[oaicite:3]{index=3}
     const hero = data?.site?.hero;
     if (!hero) return;
 
@@ -31,16 +30,12 @@
 
     const h1 = qs("#hero h1");
     if (h1) {
-      // 保留原模板結構：I'm <span class="typed"...>
-      // 只改 prefix 文字
       const prefix = hero.headlinePrefix || "I'm";
-      // 尋找文字節點改掉（保守做法：重建）
       h1.innerHTML = `${prefix} <span class="typed" data-typed-items="${(hero.typedItems || []).join(", ")}"></span>`;
     }
 
     setText(qs("#hero p"), hero.subline || "");
 
-    // Social links
     const ul = qs("#hero .list-social");
     if (ul && Array.isArray(hero.social)) {
       ul.innerHTML = hero.social
@@ -56,7 +51,6 @@
     const about = data?.site?.about;
     if (!about) return;
 
-    // about 圖
     const img = qs("#about img");
     if (img) {
       img.src = about.image || "";
@@ -64,16 +58,18 @@
       img.alt = "about";
     }
 
-    // about 文字（模板內 .p-heading / .separator）:contentReference[oaicite:4]{index=4}
-    setText(qs("#about .p-heading"), about.lead || "");
-    setText(qs("#about .separator"), about.body || "");
+    // ✅ 支援 Quill：用 innerHTML 顯示格式（顏色/粗體/字級/連結）
+    const leadEl = qs("#about .p-heading");
+    if (leadEl) leadEl.innerHTML = about.lead || "";
+
+    const bodyEl = qs("#about .separator");
+    if (bodyEl) bodyEl.innerHTML = about.body || "";
   }
 
   function renderPortfolio(data) {
     const pf = data?.portfolio;
     if (!pf) return;
 
-    // filters：#portfolio-flters li[data-filter] 會被 main.js 綁 click 與 isotope filter:contentReference[oaicite:5]{index=5}
     const filtersUl = qs("#portfolio-flters");
     if (filtersUl && Array.isArray(pf.filters)) {
       filtersUl.innerHTML = pf.filters
@@ -85,7 +81,6 @@
         .join("");
     }
 
-    // items：模板用 .portfolio-item + filter-xxx class（例如 filter-web/filter-app）:contentReference[oaicite:6]{index=6}
     const container = qs(".portfolio-container");
     if (container && Array.isArray(pf.items)) {
       container.innerHTML = pf.items
@@ -111,26 +106,22 @@
         })
         .join("");
 
-      // 綁定所有 portfolio thumbs 的 placeholder
       qsa(".portfolio-item img", container).forEach((imgEl) => {
         const label = imgEl.getAttribute("alt") || "Work";
         window.bindImgFallback(imgEl, label, 1200, 900);
       });
 
-      // lightbox 的 href 若空，也給 placeholder
       qsa(".portfolio-item a.portfolio-lightbox", container).forEach((a) => {
         if (!a.getAttribute("href")) a.href = window.makePlaceholderDataUri(a.title || "Preview", 1600, 1200);
       });
-            // === 🔧 修正 Isotope 高度計算時機（避免 Portfolio 被 Journal 吃掉） ===
+
+      // ✅ 修正 Isotope 高度計算時機（避免 Portfolio 被 Journal 吃掉）
       requestAnimationFrame(() => {
-        const iso =
-          window.Isotope &&
-          Isotope.data(container);
+        const iso = window.Isotope && Isotope.data(container);
 
         if (iso) {
           iso.layout();
         } else {
-          // 保險：若 main.js 尚未初始化 Isotope，稍後再嘗試一次
           setTimeout(() => {
             const retryIso = window.Isotope && Isotope.data(container);
             if (retryIso) retryIso.layout();
@@ -144,7 +135,6 @@
     const journal = data?.journal;
     if (!journal?.posts) return;
 
-    // index.html 的 journal block（模板本來是固定三欄卡片）:contentReference[oaicite:7]{index=7}
     const row = qs("#journal .journal-block .row");
     if (!row) return;
 
@@ -181,10 +171,8 @@
     const item = items.find((x) => x.id === id);
     if (!item) return;
 
-    // 標題
     setText(qs(".breadcrumbs h2"), item.title || "Portfolio Details");
 
-    // 右側資訊（模板原本固定 ul）:contentReference[oaicite:8]{index=8}
     const infoUl = qs(".portfolio-info ul");
     if (infoUl) {
       const d = item.details || {};
@@ -203,7 +191,6 @@
     const p = qs(".portfolio-description p");
     if (p) p.textContent = item.details?.descriptionBody || "";
 
-    // Swiper slides（模板原本 3 張 img）:contentReference[oaicite:9]{index=9}
     const wrapper = qs(".portfolio-details-slider .swiper-wrapper");
     if (wrapper) {
       const images = (item.details?.images || []).slice(0, 10);
@@ -226,6 +213,7 @@
     if (!post) return;
 
     setText(qs(".breadcrumbs h2"), "Blog");
+
     const img = qs(".block-main img");
     if (img) {
       img.src = post.cover || "";
@@ -243,7 +231,6 @@
 
     const content = qs(".content-main");
     if (content) {
-      // 保留原結構，替換內文區塊（安全起見：只替換文章段落區）
       const paras = qsa(".content-main > p, .content-main > blockquote");
       paras.forEach((n) => n.remove());
 
@@ -257,7 +244,6 @@
     try {
       const data = await loadJson("assets/data/content.json");
 
-      // 依頁面存在的區塊渲染
       renderHero(data);
       renderAbout(data);
       renderPortfolio(data);
@@ -265,10 +251,6 @@
 
       renderPortfolioDetails(data);
       renderBlogSingle(data);
-
-      // 重新初始化 typed / isotope / lightbox / swiper 等（使用你原本 main.js 的流程）
-      // main.js 會在 load 時初始化 isotope 與 typed 等:contentReference[oaicite:10]{index=10}
-      // 因為我們是先把 DOM 生出來，所以確保 content-loader 在 main.js 之前載入。
     } catch (e) {
       console.error(e);
     }
@@ -276,5 +258,3 @@
 
   window.addEventListener("DOMContentLoaded", boot);
 })();
-
-

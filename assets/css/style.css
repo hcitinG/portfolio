@@ -557,6 +557,7 @@ p {
 #portfolio {
   position: relative;
   padding-bottom: 50px;
+  overflow: hidden;
 }
 
 #portfolio #portfolio-flters {

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio Admin</title>
+
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="admin.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <span class="navbar-brand">Portfolio Admin</span>
+      <div class="d-flex gap-2">
+        <button id="btnImport" class="btn btn-outline-light btn-sm">匯入 content.json</button>
+        <button id="btnExport" class="btn btn-warning btn-sm">匯出 content.json</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <div class="alert alert-secondary small">
+      這是純前端後台：修改後請「匯出 content.json」，覆蓋到 <code>assets/data/content.json</code>，再推到 GitHub。
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header">Hero</div>
+          <div class="card-body">
+            <div class="mb-2">
+              <label class="form-label">headlinePrefix</label>
+              <input id="heroPrefix" class="form-control" />
+            </div>
+            <div class="mb-2">
+              <label class="form-label">typedItems（用逗號分隔）</label>
+              <input id="heroTyped" class="form-control" />
+            </div>
+            <div class="mb-2">
+              <label class="form-label">subline</label>
+              <input id="heroSubline" class="form-control" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-3">
+          <div class="card-header">About</div>
+          <div class="card-body">
+            <div class="mb-2">
+              <label class="form-label">lead</label>
+              <textarea id="aboutLead" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">body</label>
+              <textarea id="aboutBody" class="form-control" rows="4"></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">image（可留空＝自動 placeholder）</label>
+              <input id="aboutImage" class="form-control" placeholder="assets/img/me.jpg" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-3">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span>Filters（作品類別）</span>
+            <button id="btnAddFilter" class="btn btn-sm btn-primary">新增</button>
+          </div>
+          <div class="card-body">
+            <div id="filtersList" class="vstack gap-2"></div>
+            <div class="form-text">
+              key 請用英數小寫（例如 app/web/card），前台會自動轉成 class：<code>filter-app</code>、<code>filter-web</code>。
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span>Portfolio Items</span>
+            <button id="btnAddItem" class="btn btn-sm btn-primary">新增作品</button>
+          </div>
+          <div class="card-body">
+            <div id="itemsList" class="vstack gap-3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <input id="fileInput" type="file" accept="application/json" hidden />
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>

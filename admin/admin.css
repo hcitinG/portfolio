@@ -1,0 +1,7 @@
+.card { border-radius: 14px; }
+.small-muted { color: #6c757d; font-size: 12px; }
+.kv { display: grid; grid-template-columns: 120px 1fr; gap: 8px 12px; }
+@media (max-width: 576px) {
+  .kv { grid-template-columns: 1fr; }
+}
+.item-box { border: 1px solid #dee2e6; border-radius: 12px; padding: 12px; background: #fff; }

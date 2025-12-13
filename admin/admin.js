@@ -3,11 +3,70 @@
 
   const STORAGE_KEY = "portfolio_admin_content_v1";
 
-  function $(id) { return document.getElementById(id); }
+  function $(id) {
+    return document.getElementById(id);
+  }
 
   const state = {
-    data: null
+    data: null,
   };
+
+  // Quill instances
+  let quillLead = null;
+  let quillBody = null;
+  let quillSetting = false; // 避免程式填值時觸發 text-change 寫回造成循環
+
+  function ensureQuill() {
+    // About 欄位已改成 <div id="aboutLead"></div> / <div id="aboutBody"></div>
+    // 並且 quill.min.js 必須先載入，否則 Quill 會是 undefined
+    if (!window.Quill) return;
+
+    if (!quillLead) {
+      quillLead = new Quill("#aboutLead", {
+        theme: "snow",
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ color: [] }, { background: [] }],
+            [{ align: [] }],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link"],
+            ["clean"],
+          ],
+        },
+      });
+
+      quillLead.on("text-change", () => {
+        if (quillSetting) return;
+        state.data.site.about.lead = quillLead.root.innerHTML || "";
+        saveLocal();
+      });
+    }
+
+    if (!quillBody) {
+      quillBody = new Quill("#aboutBody", {
+        theme: "snow",
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ color: [] }, { background: [] }],
+            [{ align: [] }],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link"],
+            ["clean"],
+          ],
+        },
+      });
+
+      quillBody.on("text-change", () => {
+        if (quillSetting) return;
+        state.data.site.about.body = quillBody.root.innerHTML || "";
+        saveLocal();
+      });
+    }
+  }
 
   async function loadDefault() {
     // 從專案讀取現有 content.json 作為初始值
@@ -20,11 +79,16 @@
         return;
       }
     } catch (_) {}
+
     // 若抓不到（例如你還沒放檔），就用最小結構
     state.data = {
-      site: { title: "Portfolio", hero: { headlinePrefix: "I'm", typedItems: [], subline: "", social: [] }, about: { image: "", lead: "", body: "" } },
+      site: {
+        title: "Portfolio",
+        hero: { headlinePrefix: "I'm", typedItems: [], subline: "", social: [] },
+        about: { image: "", lead: "", body: "" },
+      },
       portfolio: { filters: [{ key: "*", label: "All" }], items: [] },
-      journal: { posts: [] }
+      journal: { posts: [] },
     };
     saveLocal();
     renderAll();
@@ -57,25 +121,51 @@
 
   function bindBasicFields() {
     const hero = state.data.site.hero;
+
+    // ===== Hero（維持原本）=====
     $("heroPrefix").value = hero.headlinePrefix || "";
     $("heroTyped").value = (hero.typedItems || []).join(", ");
     $("heroSubline").value = hero.subline || "";
 
-    $("aboutLead").value = state.data.site.about.lead || "";
-    $("aboutBody").value = state.data.site.about.body || "";
-    $("aboutImage").value = state.data.site.about.image || "";
-
-    // change listeners
-    $("heroPrefix").addEventListener("input", () => { hero.headlinePrefix = $("heroPrefix").value; saveLocal(); });
-    $("heroTyped").addEventListener("input", () => {
-      hero.typedItems = $("heroTyped").value.split(",").map(s => s.trim()).filter(Boolean);
+    // 使用 oninput 覆蓋，避免 renderAll() 重複 addEventListener
+    $("heroPrefix").oninput = () => {
+      hero.headlinePrefix = $("heroPrefix").value;
       saveLocal();
-    });
-    $("heroSubline").addEventListener("input", () => { hero.subline = $("heroSubline").value; saveLocal(); });
+    };
 
-    $("aboutLead").addEventListener("input", () => { state.data.site.about.lead = $("aboutLead").value; saveLocal(); });
-    $("aboutBody").addEventListener("input", () => { state.data.site.about.body = $("aboutBody").value; saveLocal(); });
-    $("aboutImage").addEventListener("input", () => { state.data.site.about.image = $("aboutImage").value; saveLocal(); });
+    $("heroTyped").oninput = () => {
+      hero.typedItems = $("heroTyped")
+        .value.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      saveLocal();
+    };
+
+    $("heroSubline").oninput = () => {
+      hero.subline = $("heroSubline").value;
+      saveLocal();
+    };
+
+    // ===== About（改用 Quill）=====
+    ensureQuill();
+
+    // image 還是用 input
+    $("aboutImage").value = state.data.site.about.image || "";
+    $("aboutImage").oninput = () => {
+      state.data.site.about.image = $("aboutImage").value;
+      saveLocal();
+    };
+
+    // Quill 填入既有值（HTML）
+    if (quillLead && quillBody) {
+      quillSetting = true;
+      quillLead.root.innerHTML = state.data.site.about.lead || "";
+      quillBody.root.innerHTML = state.data.site.about.body || "";
+      quillSetting = false;
+    } else {
+      // 如果 Quill 沒載入或元素不是 div，這裡不做事（避免整頁炸掉）
+      // 你只要確認 admin.html 的 script 順序 + About 欄位已改 div 即可
+    }
   }
 
   function renderFilters() {
@@ -102,16 +192,27 @@
       const labelEl = row.querySelector('input[data-k="label"]');
       const delBtn = row.querySelector("button");
 
-      if (keyEl) keyEl.addEventListener("input", () => { f.key = keyEl.value.trim(); saveLocal(); });
-      if (labelEl) labelEl.addEventListener("input", () => { f.label = labelEl.value; saveLocal(); });
+      if (keyEl)
+        keyEl.addEventListener("input", () => {
+          f.key = keyEl.value.trim();
+          saveLocal();
+        });
+
+      if (labelEl)
+        labelEl.addEventListener("input", () => {
+          f.label = labelEl.value;
+          saveLocal();
+        });
 
       delBtn.addEventListener("click", () => {
         if (f.key === "*") return;
         state.data.portfolio.filters.splice(idx, 1);
+
         // 同步移除 items.filters 中相同 key
-        state.data.portfolio.items.forEach(it => {
-          it.filters = (it.filters || []).filter(k => k !== f.key);
+        state.data.portfolio.items.forEach((it) => {
+          it.filters = (it.filters || []).filter((k) => k !== f.key);
         });
+
         saveLocal();
         renderFilters();
         renderItems();
@@ -125,13 +226,13 @@
     const box = $("itemsList");
     box.innerHTML = "";
 
-    const filterKeys = state.data.portfolio.filters.map(f => f.key).filter(k => k !== "*");
+    const filterKeys = state.data.portfolio.filters.map((f) => f.key).filter((k) => k !== "*");
 
     state.data.portfolio.items.forEach((it, idx) => {
       const row = document.createElement("div");
       row.className = "item-box";
 
-      const checked = (k) => (it.filters || []).includes(k) ? "checked" : "";
+      const checked = (k) => ((it.filters || []).includes(k) ? "checked" : "");
 
       row.innerHTML = `
         <div class="d-flex justify-content-between align-items-center">
@@ -157,26 +258,30 @@
         <div class="mt-2">
           <div class="small-muted mb-1">filters</div>
           <div class="d-flex flex-wrap gap-2">
-            ${filterKeys.map(k => `
+            ${filterKeys
+              .map(
+                (k) => `
               <label class="form-check form-check-inline m-0">
                 <input class="form-check-input" type="checkbox" value="${k}" ${checked(k)} />
                 <span class="form-check-label">${k}</span>
               </label>
-            `).join("")}
+            `
+              )
+              .join("")}
           </div>
         </div>
 
         <div class="mt-2">
           <div class="small-muted mb-1">detail images（最多 3 張，留空＝placeholder）</div>
           <div class="row g-2">
-            <div class="col-12 col-md-4"><input class="form-control form-control-sm" data-img="0" value="${(it.details?.images?.[0]) || ""}" /></div>
-            <div class="col-12 col-md-4"><input class="form-control form-control-sm" data-img="1" value="${(it.details?.images?.[1]) || ""}" /></div>
-            <div class="col-12 col-md-4"><input class="form-control form-control-sm" data-img="2" value="${(it.details?.images?.[2]) || ""}" /></div>
+            <div class="col-12 col-md-4"><input class="form-control form-control-sm" data-img="0" value="${it.details?.images?.[0] || ""}" /></div>
+            <div class="col-12 col-md-4"><input class="form-control form-control-sm" data-img="1" value="${it.details?.images?.[1] || ""}" /></div>
+            <div class="col-12 col-md-4"><input class="form-control form-control-sm" data-img="2" value="${it.details?.images?.[2] || ""}" /></div>
           </div>
         </div>
       `;
 
-      // bind
+      // delete item
       const delBtn = row.querySelector("button.btn-outline-danger");
       delBtn.addEventListener("click", () => {
         state.data.portfolio.items.splice(idx, 1);
@@ -184,10 +289,27 @@
         renderItems();
       });
 
-      row.querySelector('input[data-k="id"]').addEventListener("input", (e) => { it.id = e.target.value.trim(); saveLocal(); });
-      row.querySelector('input[data-k="title"]').addEventListener("input", (e) => { it.title = e.target.value; saveLocal(); renderItems(); });
-      row.querySelector('input[data-k="subtitle"]').addEventListener("input", (e) => { it.subtitle = e.target.value; saveLocal(); });
-      row.querySelector('input[data-k="thumb"]').addEventListener("input", (e) => { it.thumb = e.target.value; saveLocal(); });
+      // bind basic fields
+      row.querySelector('input[data-k="id"]').addEventListener("input", (e) => {
+        it.id = e.target.value.trim();
+        saveLocal();
+      });
+
+      row.querySelector('input[data-k="title"]').addEventListener("input", (e) => {
+        it.title = e.target.value;
+        saveLocal();
+        renderItems(); // 讓標題即時反映在列表 header
+      });
+
+      row.querySelector('input[data-k="subtitle"]').addEventListener("input", (e) => {
+        it.subtitle = e.target.value;
+        saveLocal();
+      });
+
+      row.querySelector('input[data-k="thumb"]').addEventListener("input", (e) => {
+        it.thumb = e.target.value;
+        saveLocal();
+      });
 
       row.querySelector('input[data-k="projectUrl"]').addEventListener("input", (e) => {
         it.details = it.details || {};
@@ -201,16 +323,19 @@
         saveLocal();
       });
 
+      // filters checkboxes
       row.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
         cb.addEventListener("change", () => {
           const v = cb.value;
           const set = new Set(it.filters || []);
-          if (cb.checked) set.add(v); else set.delete(v);
+          if (cb.checked) set.add(v);
+          else set.delete(v);
           it.filters = Array.from(set);
           saveLocal();
         });
       });
 
+      // detail images
       row.querySelectorAll("input[data-img]").forEach((inp) => {
         inp.addEventListener("input", () => {
           const i = Number(inp.getAttribute("data-img"));
@@ -255,8 +380,8 @@
         projectUrl: "",
         descriptionTitle: "",
         descriptionBody: "",
-        images: ["", "", ""]
-      }
+        images: ["", "", ""],
+      },
     });
     saveLocal();
     renderItems();
